@@ -1,4 +1,8 @@
-name: Deployment Issue Response
+name: Deployment
+
+# Add permissions configuration
+permissions:
+  issues: write
 
 on:
   issues:
