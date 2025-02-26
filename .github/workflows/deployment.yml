@@ -41,6 +41,15 @@ jobs:
             core.exportVariable('NETWORK_NAME', networkName);
             core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
 
+            // Update issue title
+            const newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}`;
+            await github.rest.issues.update({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: newTitle
+            });
+
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -63,13 +72,22 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: stable
+
+      - name: Install dependencies
+        run: |
+          forge install
 
       - name: Run Forge build
         run: |
           forge --version
           forge build --sizes
         id: build
+
+      - name: Run Forge fmt
+        run: |
+          forge fmt --check
+        id: fmt
 
       - name: Run Forge tests
         run: |
