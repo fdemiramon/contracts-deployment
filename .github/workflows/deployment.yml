@@ -126,7 +126,8 @@ jobs:
             --private-key ${{ env.PRIVATE_KEY }} \
             --verify \
             --etherscan-api-key "${{ env.ETHERSCAN_API_KEY }}" \
-            --verifier-url "${{ env.ETHERSCAN_BASE_API_URL }}"
+            --verifier-url "${{ env.ETHERSCAN_BASE_API_URL }}" \
+            --retries 20
         id: deploy
 
       - name: Handle Failure
