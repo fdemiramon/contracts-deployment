@@ -13,7 +13,6 @@ jobs:
   deployment:
     runs-on: ubuntu-latest
     if: contains(github.event.issue.labels.*.name, 'deployment')
-    # Add env block at job level to store the variables
     env:
       NETWORK_NAME: ""
       TAG_OR_COMMIT: ""
@@ -76,3 +75,36 @@ jobs:
         run: |
           forge test -vvv
         id: test
+
+      - name: Handle Failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Add error label
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Error']
+            });
+
+            // Add error comment
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ Deployment workflow failed.\n\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
+            });
+
+      - name: Handle Success
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ Deployment workflow completed successfully!\n\nAll steps have been executed without any errors. This issue can now be closed.`
+            });
