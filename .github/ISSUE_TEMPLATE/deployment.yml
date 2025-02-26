@@ -13,7 +13,14 @@ body:
       label: Network Name
       description: For upgrade, pick the name in the /networks folder. For new deployment, use a new name. Network name must be all uppercase letters, numbers, and hyphens.
     validations:
-      required: false
+      required: true
+  - type: input
+    id: tagOrCommit
+    attributes:
+      label: Tag semver or Commit hash
+      description: Get the tag or commit hash from the Github page of the KeyringCore repo.
+    validations:
+      required: true
   - type: textarea
     id: what-happened
     attributes:
