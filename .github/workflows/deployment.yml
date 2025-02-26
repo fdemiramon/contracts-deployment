@@ -20,6 +20,7 @@ jobs:
       PRIVATE_KEY: ""
       ETHERSCAN_API_KEY: ""
       ETHERSCAN_BASE_API_URL: ""
+      SIGNATURE_CHECKER_NAME: ""
     steps:
       - name: Add initial comment
         uses: actions/github-script@v6
@@ -82,6 +83,7 @@ jobs:
             core.exportVariable('PRIVATE_KEY', networkConfig.PRIVATE_KEY);
             core.exportVariable('ETHERSCAN_API_KEY', networkConfig.ETHERSCAN_API_KEY);
             core.exportVariable('ETHERSCAN_BASE_API_URL', networkConfig.ETHERSCAN_BASE_API_URL);
+            core.exportVariable('SIGNATURE_CHECKER_NAME', networkConfig.SIGNATURE_CHECKER_NAME);
 
       - name: Checkout Repository
         uses: actions/checkout@v4
