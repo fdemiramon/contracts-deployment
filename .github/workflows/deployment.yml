@@ -3,6 +3,7 @@ name: Deployment
 # Add permissions configuration
 permissions:
   issues: write
+  contents: read
 
 on:
   issues:
@@ -12,38 +13,50 @@ jobs:
   check-and-comment:
     runs-on: ubuntu-latest
     if: contains(github.event.issue.labels.*.name, 'deployment')
+    # Add env block at job level to store the variables
+    env:
+      NETWORK_NAME: ""
+      TAG_OR_COMMIT: ""
     steps:
-      - name: Standardize issue title
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const issue = context.payload.issue;
-            const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Unknown';
-            const newTitle = `[Deployment]: ${networkName}`;
-
-            if (issue.title !== newTitle) {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                title: newTitle
-              });
-              
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: `Title has been automatically standardized to: "${newTitle}"`
-              });
-            }
-
       - name: Add initial comment
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: 'Workflow began'
-            })
+            });
+
+      - name: Display Issue Fields and Set Environment Variables
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
+            const tagOrCommit = issue.body.match(/Tag semver or Commit hash\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
+
+            // Set environment variables
+            core.exportVariable('NETWORK_NAME', networkName);
+            core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `📋 Deployment Details:\n\n- Network Name: \`${networkName}\`\n- Tag/Commit: \`${tagOrCommit}\``
+            });
+
+      # Add a step to verify the environment variables are set
+      - name: Verify Environment Variables
+        run: |
+          echo "Network Name: ${{ env.NETWORK_NAME }}"
+          echo "Tag or Commit: ${{ env.TAG_OR_COMMIT }}"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "Keyring-Network/keyring-smart-contracts"
+          ref: ${{ env.TAG_OR_COMMIT }}
+          fetch-depth: 0
