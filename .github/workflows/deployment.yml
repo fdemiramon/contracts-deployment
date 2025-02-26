@@ -12,7 +12,7 @@ on:
 jobs:
   deployment:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'deployment')
+    if: contains(github.event.issue.labels.*.name, 'Deployment')
     env:
       NETWORK_NAME: ""
       TAG_OR_COMMIT: ""
