@@ -76,7 +76,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          forge install
+          forge soldeer install
 
       - name: Run Forge build
         run: |
