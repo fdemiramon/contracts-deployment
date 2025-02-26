@@ -16,6 +16,10 @@ jobs:
     env:
       NETWORK_NAME: ""
       TAG_OR_COMMIT: ""
+      RPC_URL: ""
+      PRIVATE_KEY: ""
+      ETHERSCAN_API_KEY: ""
+      ETHERSCAN_BASE_API_URL: ""
     steps:
       - name: Add initial comment
         uses: actions/github-script@v6
@@ -37,7 +41,7 @@ jobs:
             const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
             const tagOrCommit = issue.body.match(/Tag semver or Commit hash\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
 
-            // Set environment variables
+            // Set environment variables from the issue body
             core.exportVariable('NETWORK_NAME', networkName);
             core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
 
@@ -57,10 +61,27 @@ jobs:
               body: `📋 Deployment Details:\n\n- Network Name: \`${networkName}\`\n- Tag/Commit: \`${tagOrCommit}\``
             });
 
-      - name: Verify Environment Variables
-        run: |
-          echo "Network Name: ${{ env.NETWORK_NAME }}"
-          echo "Tag or Commit: ${{ env.TAG_OR_COMMIT }}"
+      - name: Set Network Credentials
+        uses: actions/github-script@v6
+        env:
+          CREDENTIALS: ${{ secrets.credentials }}
+        with:
+          script: |
+            const credentials = JSON.parse(process.env.CREDENTIALS);
+            const networkName = process.env.NETWORK_NAME;
+
+            if (!credentials[networkName]) {
+              core.setFailed(`Network "${networkName}" not found in credentials`);
+              return;
+            }
+
+            const networkConfig = credentials[networkName];
+
+            // Set environment variables for the network
+            core.exportVariable('RPC_URL', networkConfig.RPC_URL);
+            core.exportVariable('PRIVATE_KEY', networkConfig.PRIVATE_KEY);
+            core.exportVariable('ETHERSCAN_API_KEY', networkConfig.ETHERSCAN_API_KEY);
+            core.exportVariable('ETHERSCAN_BASE_API_URL', networkConfig.ETHERSCAN_BASE_API_URL);
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -93,6 +114,18 @@ jobs:
         run: |
           forge test -vvv
         id: test
+
+      - name: Run Deployment Script
+        run: |
+          forge script script/Deploy.s.sol \
+            --force \
+            --broadcast \
+            --verify \
+            --rpc-url ${{ env.RPC_URL }} \
+            --private-key ${{ env.PRIVATE_KEY }} \
+            --etherscan-api-key ${{ env.ETHERSCAN_API_KEY }} \
+            --verifier-url ${{ env.ETHERSCAN_BASE_API_URL }}
+        id: deploy
 
       - name: Handle Failure
         if: failure()
