@@ -1,7 +1,7 @@
 name: Deployment
 description: Trigger a deployment to a network.
 title: "[Deployment]: "
-labels: ["deployment", "smart contract"]
+labels: ["deployment"]
 body:
   - type: markdown
     attributes:
