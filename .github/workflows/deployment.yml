@@ -10,7 +10,7 @@ on:
     types: [opened]
 
 jobs:
-  check-and-comment:
+  deployment:
     runs-on: ubuntu-latest
     if: contains(github.event.issue.labels.*.name, 'deployment')
     # Add env block at job level to store the variables
@@ -22,11 +22,12 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Workflow began'
+              body: `Workflow began\n\n📊 [View workflow progress](${workflowRunUrl})`
             });
 
       - name: Display Issue Fields and Set Environment Variables
@@ -48,7 +49,6 @@ jobs:
               body: `📋 Deployment Details:\n\n- Network Name: \`${networkName}\`\n- Tag/Commit: \`${tagOrCommit}\``
             });
 
-      # Add a step to verify the environment variables are set
       - name: Verify Environment Variables
         run: |
           echo "Network Name: ${{ env.NETWORK_NAME }}"
@@ -60,3 +60,19 @@ jobs:
           repository: "Keyring-Network/keyring-smart-contracts"
           ref: ${{ env.TAG_OR_COMMIT }}
           fetch-depth: 0
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run Forge build
+        run: |
+          forge --version
+          forge build --sizes
+        id: build
+
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+        id: test
