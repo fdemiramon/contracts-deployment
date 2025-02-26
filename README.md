@@ -57,7 +57,7 @@
     "PRIVATE_KEY": "",
     "ETHERSCAN_API_KEY": "",
     "ETHERSCAN_BASE_API_URL": ""
-  }
+  },
   "PROD_POLYGON": {
     "RPC_URL": "",
     "PRIVATE_KEY": "",

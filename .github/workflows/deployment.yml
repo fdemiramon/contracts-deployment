@@ -120,9 +120,9 @@ jobs:
           forge script script/Deploy.s.sol \
             --force \
             --broadcast \
-            --verify \
             --rpc-url ${{ env.RPC_URL }} \
             --private-key ${{ env.PRIVATE_KEY }} \
+            --verify \
             --etherscan-api-key ${{ env.ETHERSCAN_API_KEY }} \
             --verifier-url ${{ env.ETHERSCAN_BASE_API_URL }}
         id: deploy
