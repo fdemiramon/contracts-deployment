@@ -1,6 +1,6 @@
 name: Deployment
 description: Trigger a deployment to a network.
-title: "[Deployment]: "
+title: "[Deployment]"
 labels: ["deployment"]
 body:
   - type: markdown

@@ -13,6 +13,30 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.event.issue.labels.*.name, 'deployment')
     steps:
+      - name: Standardize issue title
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Unknown';
+            const newTitle = `[Deployment]: ${networkName}`;
+
+            if (issue.title !== newTitle) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                title: newTitle
+              });
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `Title has been automatically standardized to: "${newTitle}"`
+              });
+            }
+
       - name: Add initial comment
         uses: actions/github-script@v6
         with:
