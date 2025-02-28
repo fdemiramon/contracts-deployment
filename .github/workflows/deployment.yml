@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy or Upgrade the Core smart contracts
 
 permissions:
   issues: write
