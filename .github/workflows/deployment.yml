@@ -134,15 +134,12 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            // Add error label
             await github.rest.issues.addLabels({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: ['Failure']
             });
-
-            // Add error comment
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -155,7 +152,6 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            // Add success label
             await github.rest.issues.addLabels({
               issue_number: context.issue.number,
               owner: context.repo.owner,
