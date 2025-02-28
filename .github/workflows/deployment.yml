@@ -84,12 +84,42 @@ jobs:
             core.exportVariable('ETHERSCAN_BASE_API_URL', networkConfig.ETHERSCAN_BASE_API_URL);
             core.exportVariable('SIGNATURE_CHECKER_NAME', networkConfig.SIGNATURE_CHECKER_NAME);
 
-      - name: Checkout Repository
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          path: deployment-repo
+
+      - name: Checkout Smart Contracts Repository
         uses: actions/checkout@v4
         with:
           repository: "Keyring-Network/keyring-smart-contracts"
           ref: ${{ env.TAG_OR_COMMIT }}
           fetch-depth: 0
+          path: smart-contracts
+
+      - name: Copy Network File If Exists
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const sourceFile = path.join('deployment-repo', 'networks', `${process.env.NETWORK_NAME}.txt`);
+            const targetDir = path.join('smart-contracts', 'networks');
+            const targetFile = path.join(targetDir, `${process.env.NETWORK_NAME}.txt`);
+
+            if (fs.existsSync(sourceFile)) {
+              // Create networks directory in smart-contracts if it doesn't exist
+              if (!fs.existsSync(targetDir)) {
+                fs.mkdirSync(targetDir, { recursive: true });
+              }
+              
+              // Copy the file
+              fs.copyFileSync(sourceFile, targetFile);
+              console.log(`Copied network file from ${sourceFile} to ${targetFile}`);
+            } else {
+              console.log(`No existing network file found at ${sourceFile}`);
+            }
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -97,26 +127,31 @@ jobs:
           version: stable
 
       - name: Install dependencies
+        working-directory: smart-contracts
         run: |
-          forge soldeer install
+          forge install
 
       - name: Run Forge build
+        working-directory: smart-contracts
         run: |
           forge --version
           forge build --sizes
         id: build
 
       - name: Run Forge fmt
+        working-directory: smart-contracts
         run: |
           forge fmt --check
         id: fmt
 
       - name: Run Forge tests
+        working-directory: smart-contracts
         run: |
           forge test -vvv
         id: test
 
       - name: Run Deployment Script
+        working-directory: smart-contracts
         run: |
           forge script script/Deploy.s.sol \
             --force \
@@ -128,6 +163,56 @@ jobs:
             --verifier-url "${{ env.ETHERSCAN_BASE_API_URL }}" \
             --retries 20
         id: deploy
+
+      - name: Update Network File
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const sourceFile = path.join('smart-contracts', 'networks', `${process.env.NETWORK_NAME}.txt`);
+            const targetDir = path.join('deployment-repo', 'networks');
+            const targetFile = path.join(targetDir, `${process.env.NETWORK_NAME}.txt`);
+
+            // Check if source file exists after deployment
+            if (!fs.existsSync(sourceFile)) {
+              console.log('No network file found after deployment');
+              return;
+            }
+
+            // Create networks directory in deployment-repo if it doesn't exist
+            if (!fs.existsSync(targetDir)) {
+              fs.mkdirSync(targetDir, { recursive: true });
+            }
+
+            // Read both files to compare if target exists
+            const sourceContent = fs.readFileSync(sourceFile, 'utf8');
+            let hasChanged = true;
+
+            if (fs.existsSync(targetFile)) {
+              const targetContent = fs.readFileSync(targetFile, 'utf8');
+              hasChanged = sourceContent !== targetContent;
+            }
+
+            if (hasChanged) {
+              // Copy the file
+              fs.copyFileSync(sourceFile, targetFile);
+              console.log(`Updated network file at ${targetFile}`);
+              
+              // Configure git
+              await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+              await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
+              
+              // Commit and push changes
+              await exec.exec('git', ['-C', 'deployment-repo', 'add', path.join('networks', `${process.env.NETWORK_NAME}.txt`)]);
+              await exec.exec('git', ['-C', 'deployment-repo', 'commit', '-m', `chore: update network file for ${process.env.NETWORK_NAME}`]);
+              await exec.exec('git', ['-C', 'deployment-repo', 'push']);
+              
+              console.log('Successfully pushed network file changes');
+            } else {
+              console.log('Network file unchanged, no push needed');
+            }
 
       - name: Handle Failure
         if: failure()
