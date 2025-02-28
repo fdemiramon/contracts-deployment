@@ -53,26 +53,18 @@ jobs:
 
             // Function to get network deployment status
             const getNetworkDeploymentStatus = (network) => {
-              const networkPath = path.join('networks', network.toLowerCase(), 'txt');
-              try {
-                if (fs.existsSync(networkPath)) {
-                  const files = fs.readdirSync(networkPath);
-                  // Look for any .json file that might contain the address
-                  const jsonFile = files.find(f => f.endsWith('.json'));
-                  if (jsonFile) {
-                    const data = JSON.parse(fs.readFileSync(path.join(networkPath, jsonFile), 'utf8'));
-                    // Return the address if found
-                    return data.address || "deployed (address not found)";
-                  }
-                  return "deployed (no address file)";
+            const addressFilePath = path.join("networks", network.toLowerCase(), ".txt");
+            try {
+                if (fs.existsSync(addressFilePath)) {
+                const address = fs.readFileSync(addressFilePath, "utf8").trim();
+                return "Deployed at " + address;
                 }
-                return "not deployed";
-              } catch (error) {
+                return "Not deployed";
+            } catch (error) {
                 console.error(`Error checking network ${network}:`, error);
-                return "status unknown";
-              }
+                return "Deployment status unknown";
+            }
             };
-
             // Generate report for the issue
             let report = '# Network Configurations Status\n\n';
             for (const network of networks) {
