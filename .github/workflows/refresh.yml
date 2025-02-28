@@ -51,6 +51,28 @@ jobs:
                      config.SIGNATURE_CHECKER_NAME;
             };
 
+            // Function to get network deployment status
+            const getNetworkDeploymentStatus = (network) => {
+              const networkPath = path.join('networks', network.toLowerCase());
+              try {
+                if (fs.existsSync(networkPath)) {
+                  const files = fs.readdirSync(networkPath);
+                  // Look for any .json file that might contain the address
+                  const jsonFile = files.find(f => f.endsWith('.json'));
+                  if (jsonFile) {
+                    const data = JSON.parse(fs.readFileSync(path.join(networkPath, jsonFile), 'utf8'));
+                    // Return the address if found
+                    return data.address || "deployed (address not found)";
+                  }
+                  return "deployed (no address file)";
+                }
+                return "not deployed";
+              } catch (error) {
+                console.error(`Error checking network ${network}:`, error);
+                return "status unknown";
+              }
+            };
+
             // Generate report for the issue
             let report = '# Network Configurations Status\n\n';
             for (const network of networks) {
@@ -84,8 +106,8 @@ jobs:
             // Log current directory contents for debugging
             console.log('Current directory contents:');
             await exec.exec('ls', ['-la']);
-            console.log('\nTemplate directory contents:');
-            await exec.exec('ls', ['-la', '.github/ISSUE_TEMPLATE']);
+            console.log('\nNetworks directory contents:');
+            await exec.exec('ls', ['-la', 'networks']);
 
             let template = fs.readFileSync(templatePath, 'utf8');
 
@@ -93,8 +115,12 @@ jobs:
             const optionsIndent = '        - ';
             const networkOptions = networks.map(network => {
               const config = credentials[network];
-              const status = isNetworkConfigComplete(config) ? '✅' : '❌';
-              return `${optionsIndent}"${status} ${network}"`;
+              const configStatus = isNetworkConfigComplete(config) ? '✅' : '❌';
+              const deployStatus = getNetworkDeploymentStatus(network);
+              const deploymentInfo = deployStatus.startsWith('0x') ? 
+                `(${deployStatus.slice(0, 8)}...)` : 
+                `(${deployStatus})`;
+              return `${optionsIndent}"${configStatus} ${network} ${deploymentInfo}"`;
             }).join('\n');
 
             // Replace the existing options
