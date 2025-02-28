@@ -13,16 +13,16 @@ body:
       label: Network Name
       description: For upgrade, pick the name in the /networks folder. For new deployment, use a new name. Network name must be all uppercase letters, numbers, and hyphens.
       options:
-        - "✅ ETHEREUM_SEPOLIA (not deployed)"
-        - "❌ STAGING (not deployed)"
-        - "❌ UAT (not deployed)"
-        - "❌ PROD_MAINNET (not deployed)"
-        - "❌ PROD_ARBITRUM (not deployed)"
-        - "❌ PROD_BASE (not deployed)"
-        - "❌ PROD_OPTIMISM (not deployed)"
-        - "❌ PROD_AVALANCHE (not deployed)"
-        - "❌ PROD_ZKSYNC (not deployed)"
-        - "❌ PROD_POLYGON (not deployed)"
+        - "✅ ETHEREUM_SEPOLIA (Not deployed)"
+        - "❌ STAGING (Not deployed)"
+        - "❌ UAT (Not deployed)"
+        - "❌ PROD_MAINNET (Not deployed)"
+        - "❌ PROD_ARBITRUM (Not deployed)"
+        - "❌ PROD_BASE (Not deployed)"
+        - "❌ PROD_OPTIMISM (Not deployed)"
+        - "❌ PROD_AVALANCHE (Not deployed)"
+        - "❌ PROD_ZKSYNC (Not deployed)"
+        - "❌ PROD_POLYGON (Not deployed)"
 
     validations:
       required: true
