@@ -1,14 +1,13 @@
-# Keyring Smart Contracts
-
-[![Trigger Refresh action](![Static Badge](https://img.shields.io/badge/Trigger_Refresh_Action-FBCA04?style=for-the-badge&logo=github)](https://github.com/Keyring-Network/keyring-smart-contracts/issues/new?template=refresh.yml)
-[![Create Deployment action](https://img.shields.io/badge/Trigger_Deployment_Action-D93F0B?style=for-the-badge&logo=github)](https://github.com/Keyring-Network/keyring-smart-contracts/issues/new?template=deployment.yml)
-
 # Keyring.network smart contracts deployment actions
 
-Contains the Github Actions for deployment of the Core smart contract, to be triggered through issue creations.
-This repository is a companion of the
+Contains the Github Actions for deployment of the Core smart contract, triggered through issue creations.
 
-## Main principles and motivations (aka Decision Records)
+## 1. Quick actions
+
+[![Trigger Refresh action](https://img.shields.io/badge/Trigger_Refresh_Action-FBCA04?style=for-the-badge&logo=github)](https://github.com/Keyring-Network/keyring-smart-contracts/issues/new?template=refresh.yml)
+[![Create Deployment action](https://img.shields.io/badge/Trigger_Deployment_Action-D93F0B?style=for-the-badge&logo=github)](https://github.com/Keyring-Network/keyring-smart-contracts/issues/new?template=deployment.yml)
+
+## 2. Main principles and motivations (aka Decision Records)
 
 - **Github actions**: Currently, the deployement process is manual and lacks automation. Plus it obliges the person in charge of the deployment to handle the private keys and other sensitive secrets. Github actions can solve these two pains
 - **Github UI only**: This repo should not be cloned, as it is intended to be used uniquely through the Github UI.
@@ -20,7 +19,7 @@ This repository is a companion of the
 - **Tag release approach**: Currently, each version of the smart contracts are kept at the HEAD of the branch. Instead, we can rely on git to get the former versions to prevent to keep at the HEAD billions of useless files. Moreover, tagged versions allow a clear understanding of which version of code has been deployed
 - **One unique centralised json for all secrets**: to ease the manipulation, and let opportunities for having the secrets managed somewhere else. eg: KMS
 
-## Guidelines:
+## 3. Runbooks
 
 1/ How to perform an upgrade
 
