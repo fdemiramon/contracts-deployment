@@ -1,7 +1,7 @@
-name: Deployment
+name: Deploy
 description: Trigger a deployment to a network.
 title: "Leave the title blank as the workflow will override it"
-labels: ["Deployment"]
+labels: ["Deploy"]
 body:
   - type: markdown
     attributes:
