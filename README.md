@@ -1,6 +1,6 @@
 # Keyring.network smart contracts deployment actions
 
-Contains the Github Actions for deployment of the Core smart contract, triggered through issue creations.
+Contains the Github Actions to deploy the Core smart contract of Keyring.network, triggered through issue creations.
 
 ## 1. Quick actions
 
