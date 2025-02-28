@@ -46,23 +46,14 @@ jobs:
             const credentials = JSON.parse(process.env.CREDENTIALS);
             const networks = Object.keys(credentials);
 
-            // Function to check if a network configuration is complete
-            const isNetworkConfigComplete = (config) => {
-              return config.RPC_URL && 
-                     config.PRIVATE_KEY && 
-                     config.ETHERSCAN_API_KEY && 
-                     config.ETHERSCAN_BASE_API_URL && 
-                     config.SIGNATURE_CHECKER_NAME;
-            };
 
-            // Function to get network deployment status
             const getNetworkDeploymentStatus = (network) => {
               const addressFilePath = path.join("networks", network +".txt");
               console.log(addressFilePath);
               try {
                 if (fs.existsSync(addressFilePath)) {
                   const address = fs.readFileSync(addressFilePath, "utf8").trim();
-                  return "Deployed at " + address;
+                  return "Deployed at `" + address + "`";
                 }
                 return "Not deployed";
               } catch (error) {
@@ -72,16 +63,13 @@ jobs:
             };
 
             // Generate network status table
-            let networkTable = '# Network Status Overview\n\n';
-            networkTable += '| Network | Configuration | Address | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |\n';
-            networkTable += '|---------|---------------|---------|-----|----|--------------|--------------|--------------|\n';
+            let networkTable = '# Network Configurations Status Overview\n\n';
+            networkTable += '| Network | Address | RPC_URL | PRIVATE_KEY | ETHERSCAN_API_KEY | ETHERSCAN_BASE_API_URL | SIGNATURE_CHECKER_NAME |\n';
+            networkTable += '|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n';
 
             for (const network of networks) {
               const config = credentials[network];
-              const configStatus = isNetworkConfigComplete(config) ? '✅' : '❌';
               const deployStatus = getNetworkDeploymentStatus(network);
-              
-              networkTable += `| ${network} | ${configStatus} | ${deployStatus} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
               networkTable += ` ${config.PRIVATE_KEY ? '✅' : '❌'} |`;
               networkTable += ` ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} |`;
@@ -89,30 +77,24 @@ jobs:
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
-            // Read the existing template
             const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
             const template = yaml.load(fs.readFileSync(templatePath, 'utf8'));
 
-            // Update the template
             template.body[0].attributes.value = networkTable;
             template.body[1].attributes.options = networks.map(network => network);
 
-            // Write back the updated template
             fs.writeFileSync(templatePath, yaml.dump(template, {
               lineWidth: -1,
               quotingType: '"',
               forceQuotes: true
             }));
 
-            // Configure git
             await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
             await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
 
-            // Show git status for debugging
             console.log('\nGit status:');
             await exec.exec('git', ['status']);
 
-            // Commit and push changes
             await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
             await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
             await exec.exec('git', ['push']);
