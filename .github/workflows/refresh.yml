@@ -70,6 +70,7 @@ jobs:
             for (const network of networks) {
               const config = credentials[network];
               const deployStatus = getNetworkDeploymentStatus(network);
+              networkTable += `| ${network} | ${deployStatus} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
               networkTable += ` ${config.PRIVATE_KEY ? '✅' : '❌'} |`;
               networkTable += ` ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} |`;
