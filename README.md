@@ -1,12 +1,11 @@
 # Keyring Smart Contracts Deployment Actions
+Contains the Github Actions for deployment of the Core smart contract, triggered with issue creations.
 
 ## Direct links
 
 [![Trigger Refresh](https://img.shields.io/badge/Create-Refresh%20Issue-blue?style=for-the-badge&logo=github)](https://github.com/fdemiramon/contracts-deployment/issues/new?template=refresh.yml)
 [![Trigger Deployment](https://img.shields.io/badge/Create-Deployment%20Issue-green?style=for-the-badge&logo=github)](https://github.com/fdemiramon/contracts-deployment/issues/new?template=deployment.yml)
 
-Contains the Github Actions for deployment of the Core smart contract, to be triggered through issue creations.
-This repository is a companion of the
 
 ## Main principles and motivations (aka Decision Records)
 
