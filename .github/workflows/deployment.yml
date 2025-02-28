@@ -129,7 +129,7 @@ jobs:
       - name: Install dependencies
         working-directory: smart-contracts
         run: |
-          forge install
+          forge soldeer install
 
       - name: Run Forge build
         working-directory: smart-contracts
