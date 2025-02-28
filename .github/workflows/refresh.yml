@@ -31,6 +31,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Install js-yaml
+        run: npm install js-yaml
+
       - name: Check Network Configurations and Update Template
         uses: actions/github-script@v6
         env:
@@ -39,7 +42,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const yaml = require('js-yaml');
+            const yaml = require('./node_modules/js-yaml');
             const credentials = JSON.parse(process.env.CREDENTIALS);
             const networks = Object.keys(credentials);
 
