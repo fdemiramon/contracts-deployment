@@ -1,0 +1,73 @@
+name: Refresh Network Configurations
+
+permissions:
+  issues: write
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'Refresh')
+    steps:
+      - name: Add initial comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Refresh workflow began\n\n📊 [View workflow progress](${workflowRunUrl})`
+            });
+
+      - name: Check Network Configurations
+        uses: actions/github-script@v6
+        env:
+          CREDENTIALS: ${{ secrets.credentials }}
+        with:
+          script: |
+            const credentials = JSON.parse(process.env.CREDENTIALS);
+            const networks = Object.keys(credentials);
+
+            let report = '# Network Configurations Status\n\n';
+
+            for (const network of networks) {
+              const config = credentials[network];
+              const checks = {
+                RPC_URL: !!config.RPC_URL,
+                PRIVATE_KEY: !!config.PRIVATE_KEY,
+                ETHERSCAN_API_KEY: !!config.ETHERSCAN_API_KEY,
+                ETHERSCAN_BASE_API_URL: !!config.ETHERSCAN_BASE_API_URL,
+                SIGNATURE_CHECKER_NAME: !!config.SIGNATURE_CHECKER_NAME
+              };
+              
+              report += `## ${network}\n`;
+              for (const [key, isSet] of Object.entries(checks)) {
+                const status = isSet ? '✅' : '❌';
+                report += `- ${status} ${key}\n`;
+              }
+              report += '\n';
+            }
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+      - name: Handle Success
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Network configurations refresh completed successfully!'
+            });
