@@ -53,7 +53,7 @@ jobs:
 
             // Function to get network deployment status
             const getNetworkDeploymentStatus = (network) => {
-              const networkPath = path.join('networks', network.toLowerCase());
+              const networkPath = path.join('networks', network.toLowerCase(), 'txt');
               try {
                 if (fs.existsSync(networkPath)) {
                   const files = fs.readdirSync(networkPath);
