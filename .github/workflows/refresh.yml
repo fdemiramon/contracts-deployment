@@ -42,6 +42,15 @@ jobs:
             const credentials = JSON.parse(process.env.CREDENTIALS);
             const networks = Object.keys(credentials);
 
+            // Function to check if a network configuration is complete
+            const isNetworkConfigComplete = (config) => {
+              return config.RPC_URL && 
+                     config.PRIVATE_KEY && 
+                     config.ETHERSCAN_API_KEY && 
+                     config.ETHERSCAN_BASE_API_URL && 
+                     config.SIGNATURE_CHECKER_NAME;
+            };
+
             // Generate report for the issue
             let report = '# Network Configurations Status\n\n';
             for (const network of networks) {
@@ -82,7 +91,11 @@ jobs:
 
             // Find the options section and replace it
             const optionsIndent = '        - ';
-            const networkOptions = networks.map(network => `${optionsIndent}"${network}"`).join('\n');
+            const networkOptions = networks.map(network => {
+              const config = credentials[network];
+              const status = isNetworkConfigComplete(config) ? '✅' : '❌';
+              return `${optionsIndent}"${status} ${network}"`;
+            }).join('\n');
 
             // Replace the existing options
             const optionsRegex = /(\s+options:\n)([^\n]*\n)*?(\s+validations:)/s;
