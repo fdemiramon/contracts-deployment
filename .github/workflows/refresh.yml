@@ -39,6 +39,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
+            const yaml = require('js-yaml');
             const credentials = JSON.parse(process.env.CREDENTIALS);
             const networks = Object.keys(credentials);
 
@@ -85,66 +86,20 @@ jobs:
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
-            // Create the template structure
-            const template = {
-              name: "Deploy or upgrade the core smart contracts",
-              description: "Trigger a deployment to a network.",
-              title: "Leave the title blank as the workflow will override it",
-              labels: ["Deploy"],
-              body: [
-                {
-                  type: "markdown",
-                  attributes: {
-                    value: networkTable
-                  }
-                },
-                {
-                  type: "dropdown",
-                  id: "networkName",
-                  attributes: {
-                    label: "Network Name",
-                    description: "For upgrade, pick the name in the /networks folder. For new deployment, use a new name. Network name must be all uppercase letters, numbers, and hyphens.",
-                    options: networks.map(network => network)
-                  },
-                  validations: {
-                    required: true
-                  }
-                },
-                {
-                  type: "input",
-                  id: "tagOrCommit",
-                  attributes: {
-                    label: "Tag semver or Commit hash",
-                    description: "Get the tag or commit hash from the Github page of the KeyringCore repo."
-                  },
-                  validations: {
-                    required: true
-                  }
-                },
-                {
-                  type: "textarea",
-                  id: "what-happened",
-                  attributes: {
-                    label: "Comments",
-                    description: "Add comments related to this deployment",
-                    placeholder: "This is a new deployment for the Foo network as ..."
-                  },
-                  validations: {
-                    required: false
-                  }
-                }
-              ]
-            };
+            // Read the existing template
+            const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
+            const template = yaml.load(fs.readFileSync(templatePath, 'utf8'));
 
-            // Convert to YAML-compatible string with proper indentation
-            const yamlContent = JSON.stringify(template, null, 2)
-              .replace(/"([^"]+)":/g, '$1:')  // Remove quotes from keys
-              .replace(/: "([^"]+)"/g, ': $1') // Remove quotes from simple values
-              .replace(/\[\s+"([^"]+)"\s+\]/g, '[$1]') // Fix array formatting
-              .replace(/\[\s*([^,\]]+(?:,\s*[^,\]]+)*)\s*\]/g, '[$1]'); // Fix array formatting
+            // Update the template
+            template.body[0].attributes.value = networkTable;
+            template.body[1].attributes.options = networks.map(network => network);
 
-            // Write the template
-            fs.writeFileSync('.github/ISSUE_TEMPLATE/deployment.yml', yamlContent);
+            // Write back the updated template
+            fs.writeFileSync(templatePath, yaml.dump(template, {
+              lineWidth: -1,
+              quotingType: '"',
+              forceQuotes: true
+            }));
 
             // Configure git
             await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
