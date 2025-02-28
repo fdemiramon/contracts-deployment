@@ -4,8 +4,8 @@ Contains the Github Actions to deploy the Core smart contract of Keyring.network
 
 ## 1. Quick actions
 
-[![Trigger Refresh action](https://img.shields.io/badge/Trigger_Refresh_Action-FBCA04?style=for-the-badge&logo=github)](https://github.com/Keyring-Network/keyring-smart-contracts/issues/new?template=refresh.yml)
-[![Create Deployment action](https://img.shields.io/badge/Trigger_Deployment_Action-D93F0B?style=for-the-badge&logo=github)](https://github.com/Keyring-Network/keyring-smart-contracts/issues/new?template=deployment.yml)
+[![Trigger Refresh action](https://img.shields.io/badge/Trigger_Refresh_Action-FBCA04?style=for-the-badge&logo=github)](https://github.com/fdemiramon/contracts-deployment/issues/new?template=refresh.yml)
+[![Create Deployment action](https://img.shields.io/badge/Trigger_Deployment_Action-D93F0B?style=for-the-badge&logo=github)](https://github.com/fdemiramon/contracts-deployment/issues/new?template=deployment.yml)
 
 ## 2. Main principles and motivations (aka Decision Records)
 
