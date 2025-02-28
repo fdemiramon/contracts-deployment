@@ -53,7 +53,7 @@ jobs:
               try {
                 if (fs.existsSync(addressFilePath)) {
                   const address = fs.readFileSync(addressFilePath, "utf8").trim();
-                  return "Deployed at `" + address + "`";
+                  return "`" + address + "`";
                 }
                 return "Not deployed";
               } catch (error) {
@@ -62,8 +62,7 @@ jobs:
               }
             };
 
-            // Generate network status table
-            let networkTable = '# Network Configurations Status Overview\n\n';
+            let networkTable = '## Network Configurations Status Overview\n\n';
             networkTable += '| Network | Address | RPC_URL | PRIVATE_KEY | ETHERSCAN_API_KEY | ETHERSCAN_BASE_API_URL | SIGNATURE_CHECKER_NAME |\n';
             networkTable += '|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n';
 
@@ -82,7 +81,7 @@ jobs:
             const template = yaml.load(fs.readFileSync(templatePath, 'utf8'));
 
             template.body[0].attributes.value = networkTable;
-            template.body[1].attributes.options = networks.map(network => network);
+            template.body[2].attributes.options = networks;
 
             fs.writeFileSync(templatePath, yaml.dump(template, {
               lineWidth: -1,
