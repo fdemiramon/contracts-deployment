@@ -1,38 +1,42 @@
-name: Deploy or upgrade the core smart contracts
-description: Trigger a deployment to a network.
-title: Leave the title blank as the workflow will override it
-labels: [Deploy]
+name: "Deploy or upgrade the core smart contracts"
+description: "Trigger a deployment to a network."
+title: "Leave the title blank as the workflow will override it"
+labels:
+  - "Deploy"
 body:
-  - type: markdown
+  - type: "markdown"
     attributes:
-      value: |
-        # Network Status Overview
-
-        | Network | Configuration | Address | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |
-        |---------|---------------|---------|-----|----|--------------|--------------|--------------|
-  - type: dropdown
-    id: networkName
+      value: "# Network Status Overview\n\n| Network | Configuration | Address | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |\n|---------|---------------|---------|-----|----|--------------|--------------|--------------|\n| ETHEREUM_SEPOLIA | ✅ | Not deployed | ✅ | ✅ | ✅ | ✅ | ✅ |\n| STAGING | ❌ | Deployed at 0x0b33fE66FF4Fa1B9784403c0b2315530735A6AEE | ❌ | ❌ | ❌ | ❌ | ✅ |\n| UAT | ❌ | Deployed at 0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_MAINNET | ❌ | Deployed at 0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_ARBITRUM | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_BASE | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_OPTIMISM | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_AVALANCHE | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_ZKSYNC | ❌ | Deployed at 0x617534538624ae12AC8F5A12cbC22491FED7D63D | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_POLYGON | ❌ | Not deployed | ❌ | ❌ | ❌ | ❌ | ✅ |\n"
+  - type: "dropdown"
+    id: "networkName"
     attributes:
-      label: Network Name
-      description: Select a network for deployment
+      label: "Network Name"
+      description: "Select a network for deployment"
       options:
         - "ETHEREUM_SEPOLIA"
         - "STAGING"
+        - "UAT"
         - "PROD_MAINNET"
+        - "PROD_ARBITRUM"
+        - "PROD_BASE"
+        - "PROD_OPTIMISM"
+        - "PROD_AVALANCHE"
+        - "PROD_ZKSYNC"
+        - "PROD_POLYGON"
     validations:
       required: true
-  - type: input
-    id: tagOrCommit
+  - type: "input"
+    id: "tagOrCommit"
     attributes:
-      label: Tag semver or Commit hash
-      description: Get the tag or commit hash from the Github page of the KeyringCore repo.
+      label: "Tag semver or Commit hash"
+      description: "Get the tag or commit hash from the Github page of the KeyringCore repo."
     validations:
       required: true
-  - type: textarea
-    id: what-happened
+  - type: "textarea"
+    id: "what-happened"
     attributes:
-      label: Comments
-      description: Add comments related to this deployment
-      placeholder: This is a new deployment for the Foo network as ...
+      label: "Comments"
+      description: "Add comments related to this deployment"
+      placeholder: "This is a new deployment for the Foo network as ..."
     validations:
       required: false
