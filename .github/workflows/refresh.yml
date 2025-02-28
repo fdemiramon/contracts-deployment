@@ -53,44 +53,44 @@ jobs:
 
             // Function to get network deployment status
             const getNetworkDeploymentStatus = (network) => {
-            const addressFilePath = path.join("networks", network +".txt");
-            console.log(addressFilePath);
-            try {
+              const addressFilePath = path.join("networks", network +".txt");
+              console.log(addressFilePath);
+              try {
                 if (fs.existsSync(addressFilePath)) {
-                const address = fs.readFileSync(addressFilePath, "utf8").trim();
-                return "Deployed at " + address;
+                  const address = fs.readFileSync(addressFilePath, "utf8").trim();
+                  return "Deployed at " + address;
                 }
                 return "Not deployed";
-            } catch (error) {
+              } catch (error) {
                 console.error(`Error checking network ${network}:`, error);
                 return "Deployment status unknown";
-            }
+              }
             };
-            // Generate report for the issue
-            let report = '# Network Configurations Status\n\n';
+
+            // Generate network status table
+            let networkTable = '# Network Status Overview\n\n';
+            networkTable += '| Network | Configuration | Deployment Status | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |\n';
+            networkTable += '|---------|---------------|------------------|-----|----|--------------|--------------|--------------|\n';
+
             for (const network of networks) {
               const config = credentials[network];
-              const checks = {
-                RPC_URL: !!config.RPC_URL,
-                PRIVATE_KEY: !!config.PRIVATE_KEY,
-                ETHERSCAN_API_KEY: !!config.ETHERSCAN_API_KEY,
-                ETHERSCAN_BASE_API_URL: !!config.ETHERSCAN_BASE_API_URL,
-                SIGNATURE_CHECKER_NAME: !!config.SIGNATURE_CHECKER_NAME
-              };
+              const configStatus = isNetworkConfigComplete(config) ? '✅' : '❌';
+              const deployStatus = getNetworkDeploymentStatus(network);
               
-              report += `## ${network}\n`;
-              for (const [key, isSet] of Object.entries(checks)) {
-                const status = isSet ? '✅' : '❌';
-                report += `- ${status} ${key}\n`;
-              }
-              report += '\n';
+              networkTable += `| ${network} | ${configStatus} | ${deployStatus} |`;
+              networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
+              networkTable += ` ${config.PRIVATE_KEY ? '✅' : '❌'} |`;
+              networkTable += ` ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} |`;
+              networkTable += ` ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
+              networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
+            // Post the network status table
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: report
+              body: networkTable
             });
 
             // Update deployment template
@@ -104,17 +104,9 @@ jobs:
 
             let template = fs.readFileSync(templatePath, 'utf8');
 
-            // Find the options section and replace it
+            // Find the options section and replace it with simple network names
             const optionsIndent = '        - ';
-            const networkOptions = networks.map(network => {
-              const config = credentials[network];
-              const configStatus = isNetworkConfigComplete(config) ? '✅' : '❌';
-              const deployStatus = getNetworkDeploymentStatus(network);
-              const deploymentInfo = deployStatus.startsWith('0x') ? 
-                `(${deployStatus.slice(0, 8)}...)` : 
-                `(${deployStatus})`;
-              return `${optionsIndent}"${configStatus} ${network} ${deploymentInfo}"`;
-            }).join('\n');
+            const networkOptions = networks.map(network => `${optionsIndent}"${network}"`).join('\n');
 
             // Replace the existing options
             const optionsRegex = /(\s+options:\n)([^\n]*\n)*?(\s+validations:)/s;
