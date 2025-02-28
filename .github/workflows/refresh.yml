@@ -54,6 +54,7 @@ jobs:
             // Function to get network deployment status
             const getNetworkDeploymentStatus = (network) => {
             const addressFilePath = path.join("networks", network, ".txt");
+            console.log(addressFilePath);
             try {
                 if (fs.existsSync(addressFilePath)) {
                 const address = fs.readFileSync(addressFilePath, "utf8").trim();
