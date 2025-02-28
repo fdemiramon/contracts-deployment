@@ -1,4 +1,4 @@
-name: Deploy or Upgrade the Core smart contracts
+name: Deploy or upgrade the core smart contracts
 description: Trigger a deployment to a network.
 title: "Leave the title blank as the workflow will override it"
 labels: ["Deploy"]
