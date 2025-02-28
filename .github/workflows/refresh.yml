@@ -69,8 +69,8 @@ jobs:
 
             // Generate network status table
             let networkTable = '# Network Status Overview\n\n';
-            networkTable += '| Network | Configuration | Deployment Status | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |\n';
-            networkTable += '|---------|---------------|------------------|-----|----|--------------|--------------|--------------|\n';
+            networkTable += '| Network | Configuration | Address | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |\n';
+            networkTable += '|---------|---------------|---------|-----|----|--------------|--------------|--------------|\n';
 
             for (const network of networks) {
               const config = credentials[network];
@@ -85,35 +85,27 @@ jobs:
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
-            // Post the network status table
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: networkTable
-            });
-
             // Update deployment template
             const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
-
-            // Log current directory contents for debugging
-            console.log('Current directory contents:');
-            await exec.exec('ls', ['-la']);
-            console.log('\nNetworks directory contents:');
-            await exec.exec('ls', ['-la', 'networks']);
-
             let template = fs.readFileSync(templatePath, 'utf8');
 
             // Find the options section and replace it with simple network names
             const optionsIndent = '        - ';
             const networkOptions = networks.map(network => `${optionsIndent}"${network}"`).join('\n');
 
-            // Replace the existing options
-            const optionsRegex = /(\s+options:\n)([^\n]*\n)*?(\s+validations:)/s;
-            const updatedTemplate = template.replace(
-              optionsRegex,
-              `$1${networkOptions}\n\n    validations:`
-            );
+            // Add the network table to the template's markdown section
+            const markdownValue = `        value: |\n          ${networkTable.split('\n').join('\n          ')}`;
+
+            // Update the template with both the network options and the table
+            const updatedTemplate = template
+              .replace(
+                /(type: markdown\n\s+attributes:\n\s+value: \|[\s\S]*?)(?=\n\s+- type:)/,
+                `type: markdown\n    attributes:\n${markdownValue}\n\n    - `
+              )
+              .replace(
+                /(\s+options:\n)([^\n]*\n)*?(\s+validations:)/s,
+                `$1${networkOptions}\n\n    validations:`
+              );
 
             // Write the updated template back
             fs.writeFileSync(templatePath, updatedTemplate);
@@ -128,7 +120,7 @@ jobs:
 
             // Commit and push changes
             await exec.exec('git', ['add', templatePath]);
-            await exec.exec('git', ['commit', '-m', 'chore: update network options in deployment template']);
+            await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
             await exec.exec('git', ['push']);
 
       - name: Handle Failure
