@@ -14,3 +14,11 @@ body:
         1. List all available networks
         2. Check each network's configuration
         3. Display the status of required parameters for each network
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      description: Please confirm that you want to refresh the network configurations
+      options:
+        - label: I confirm that I want to check the status of all network configurations
+          required: true
