@@ -85,30 +85,66 @@ jobs:
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
-            // Update deployment template
-            const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
-            let template = fs.readFileSync(templatePath, 'utf8');
+            // Create the template structure
+            const template = {
+              name: "Deploy or upgrade the core smart contracts",
+              description: "Trigger a deployment to a network.",
+              title: "Leave the title blank as the workflow will override it",
+              labels: ["Deploy"],
+              body: [
+                {
+                  type: "markdown",
+                  attributes: {
+                    value: networkTable
+                  }
+                },
+                {
+                  type: "dropdown",
+                  id: "networkName",
+                  attributes: {
+                    label: "Network Name",
+                    description: "For upgrade, pick the name in the /networks folder. For new deployment, use a new name. Network name must be all uppercase letters, numbers, and hyphens.",
+                    options: networks.map(network => network)
+                  },
+                  validations: {
+                    required: true
+                  }
+                },
+                {
+                  type: "input",
+                  id: "tagOrCommit",
+                  attributes: {
+                    label: "Tag semver or Commit hash",
+                    description: "Get the tag or commit hash from the Github page of the KeyringCore repo."
+                  },
+                  validations: {
+                    required: true
+                  }
+                },
+                {
+                  type: "textarea",
+                  id: "what-happened",
+                  attributes: {
+                    label: "Comments",
+                    description: "Add comments related to this deployment",
+                    placeholder: "This is a new deployment for the Foo network as ..."
+                  },
+                  validations: {
+                    required: false
+                  }
+                }
+              ]
+            };
 
-            // Find the options section and replace it with simple network names
-            const optionsIndent = '        - ';
-            const networkOptions = networks.map(network => `${optionsIndent}"${network}"`).join('\n');
+            // Convert to YAML-compatible string with proper indentation
+            const yamlContent = JSON.stringify(template, null, 2)
+              .replace(/"([^"]+)":/g, '$1:')  // Remove quotes from keys
+              .replace(/: "([^"]+)"/g, ': $1') // Remove quotes from simple values
+              .replace(/\[\s+"([^"]+)"\s+\]/g, '[$1]') // Fix array formatting
+              .replace(/\[\s*([^,\]]+(?:,\s*[^,\]]+)*)\s*\]/g, '[$1]'); // Fix array formatting
 
-            // Add the network table to the template's markdown section
-            const markdownValue = `        value: |\n          ${networkTable.split('\n').join('\n          ')}`;
-
-            // Update the template with both the network options and the table
-            const updatedTemplate = template
-              .replace(
-                /(type: markdown\n\s+attributes:\n\s+value: \|[\s\S]*?)(?=\n\s+- type:)/,
-                `type: markdown\n    attributes:\n${markdownValue}\n\n    - `
-              )
-              .replace(
-                /(\s+options:\n)([^\n]*\n)*?(\s+validations:)/s,
-                `$1${networkOptions}\n\n    validations:`
-              );
-
-            // Write the updated template back
-            fs.writeFileSync(templatePath, updatedTemplate);
+            // Write the template
+            fs.writeFileSync('.github/ISSUE_TEMPLATE/deployment.yml', yamlContent);
 
             // Configure git
             await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
@@ -119,7 +155,7 @@ jobs:
             await exec.exec('git', ['status']);
 
             // Commit and push changes
-            await exec.exec('git', ['add', templatePath]);
+            await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
             await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
             await exec.exec('git', ['push']);
 
