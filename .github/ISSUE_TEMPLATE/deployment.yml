@@ -6,7 +6,7 @@ labels:
 body:
   - type: "markdown"
     attributes:
-      value: "# Network Status Overview\n\n| Network | Configuration | Address | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |\n|---------|---------------|---------|-----|----|--------------|--------------|--------------|\n| ETHEREUM_SEPOLIA | ✅ | Not deployed | ✅ | ✅ | ✅ | ✅ | ✅ |\n| STAGING | ❌ | Deployed at 0x0b33fE66FF4Fa1B9784403c0b2315530735A6AEE | ❌ | ❌ | ❌ | ❌ | ✅ |\n| UAT | ❌ | Deployed at 0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_MAINNET | ❌ | Deployed at 0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_ARBITRUM | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_BASE | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_OPTIMISM | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_AVALANCHE | ❌ | Deployed at 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_ZKSYNC | ❌ | Deployed at 0x617534538624ae12AC8F5A12cbC22491FED7D63D | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_POLYGON | ❌ | Not deployed | ❌ | ❌ | ❌ | ❌ | ✅ |\n"
+      value: "# Network Status Overview\n\n| Network | Configuration | Address | RPC | PK | Etherscan API | Etherscan URL | Sig Checker |\n|---------|---------------|---------|-----|----|--------------|--------------|--------------|\n| ETHEREUM_SEPOLIA | ✅ | Not deployed | ✅ | ✅ | ✅ | ✅ | ✅ |\n| STAGING | ❌ | 0x0b33fE66FF4Fa1B9784403c0b2315530735A6AEE | ❌ | ❌ | ❌ | ❌ | ✅ |\n| UAT | ❌ | 0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_MAINNET | ❌ | 0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_ARBITRUM | ❌ | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_BASE | ❌ | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_OPTIMISM | ❌ | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_AVALANCHE | ❌ | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_ZKSYNC | ❌ | 0x617534538624ae12AC8F5A12cbC22491FED7D63D | ❌ | ❌ | ❌ | ❌ | ✅ |\n| PROD_POLYGON | ❌ | Not deployed | ❌ | ❌ | ❌ | ❌ | ✅ |\n"
   - type: "dropdown"
     id: "networkName"
     attributes:
@@ -33,7 +33,7 @@ body:
     validations:
       required: true
   - type: "textarea"
-    id: "what-happened"
+    id: "comments"
     attributes:
       label: "Comments"
       description: "Add comments related to this deployment"
