@@ -28,7 +28,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          repository: "Keyring-Network/keyring-smart-contracts"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Check Network Configurations and Update Template
         uses: actions/github-script@v6
@@ -70,6 +71,13 @@ jobs:
 
             // Update deployment template
             const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
+
+            // Log current directory contents for debugging
+            console.log('Current directory contents:');
+            await exec.exec('ls', ['-la']);
+            console.log('\nTemplate directory contents:');
+            await exec.exec('ls', ['-la', '.github/ISSUE_TEMPLATE']);
+
             let template = fs.readFileSync(templatePath, 'utf8');
 
             // Find the options section and replace it
@@ -86,13 +94,17 @@ jobs:
             // Write the updated template back
             fs.writeFileSync(templatePath, updatedTemplate);
 
-            // Commit and push the changes
-            const commitMessage = 'chore: update network options in deployment template';
-
+            // Configure git
             await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
             await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
+
+            // Show git status for debugging
+            console.log('\nGit status:');
+            await exec.exec('git', ['status']);
+
+            // Commit and push changes
             await exec.exec('git', ['add', templatePath]);
-            await exec.exec('git', ['commit', '-m', commitMessage]);
+            await exec.exec('git', ['commit', '-m', 'chore: update network options in deployment template']);
             await exec.exec('git', ['push']);
 
       - name: Handle Failure
