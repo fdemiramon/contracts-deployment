@@ -2,6 +2,7 @@ name: Refresh Network Configurations
 
 permissions:
   issues: write
+  contents: write
 
 on:
   issues:
@@ -24,17 +25,24 @@ jobs:
               body: `Refresh workflow began\n\n📊 [View workflow progress](${workflowRunUrl})`
             });
 
-      - name: Check Network Configurations
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "Keyring-Network/keyring-smart-contracts"
+
+      - name: Check Network Configurations and Update Template
         uses: actions/github-script@v6
         env:
           CREDENTIALS: ${{ secrets.credentials }}
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
             const credentials = JSON.parse(process.env.CREDENTIALS);
             const networks = Object.keys(credentials);
 
+            // Generate report for the issue
             let report = '# Network Configurations Status\n\n';
-
             for (const network of networks) {
               const config = credentials[network];
               const checks = {
@@ -59,6 +67,33 @@ jobs:
               repo: context.repo.repo,
               body: report
             });
+
+            // Update deployment template
+            const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
+            let template = fs.readFileSync(templatePath, 'utf8');
+
+            // Find the options section and replace it
+            const optionsIndent = '        - ';
+            const networkOptions = networks.map(network => `${optionsIndent}"${network}"`).join('\n');
+
+            // Replace the existing options
+            const optionsRegex = /(\s+options:\n)([^\n]*\n)*?(\s+validations:)/s;
+            const updatedTemplate = template.replace(
+              optionsRegex,
+              `$1${networkOptions}\n\n    validations:`
+            );
+
+            // Write the updated template back
+            fs.writeFileSync(templatePath, updatedTemplate);
+
+            // Commit and push the changes
+            const commitMessage = 'chore: update network options in deployment template';
+
+            await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+            await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
+            await exec.exec('git', ['add', templatePath]);
+            await exec.exec('git', ['commit', '-m', commitMessage]);
+            await exec.exec('git', ['push']);
 
       - name: Handle Failure
         if: failure()
@@ -93,5 +128,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✅ Network configurations refresh completed successfully!'
+              body: '✅ Network configurations refresh completed successfully! The deployment template has been updated with the current list of networks.'
             });

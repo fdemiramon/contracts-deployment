@@ -7,11 +7,17 @@ body:
     attributes:
       value: |
         Deploy or upgrade KeyringCore to a network.
-  - type: input
+  - type: dropdown
     id: networkName
     attributes:
       label: Network Name
       description: For upgrade, pick the name in the /networks folder. For new deployment, use a new name. Network name must be all uppercase letters, numbers, and hyphens.
+      options:
+        - "MAINNET"
+        - "SEPOLIA"
+        - "BASE-MAINNET"
+        - "BASE-SEPOLIA"
+
     validations:
       required: true
   - type: input
