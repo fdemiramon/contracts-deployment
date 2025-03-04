@@ -38,10 +38,10 @@ body:
   - type: "checkboxes"
     id: "isBroadcasted"
     attributes:
-      label: "Broadcast the deployment transactions"
+      label: "Broadcast the deployment transactions?"
       description: "If not checked, will only perform a simulation of the deployment. This is useful to check if the deployment will be successful before broadcasting the transactions."
       options:
-        - label: "I confirm that I want to broadcast the deployment transactions"
+        - label: "I want to broadcast the deployment transactions"
           required: false
   - type: "textarea"
     id: "comments"
