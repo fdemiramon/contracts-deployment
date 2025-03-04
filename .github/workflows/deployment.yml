@@ -56,8 +56,10 @@ jobs:
             core.exportVariable('IS_BROADCASTED', isBroadcasted);
             // Update the title of the issue
             let newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}`;
-            if (isBroadcasted) {
+            if (isBroadcasted === 'true') {
               newTitle += ' ( 🔥🔥🔥 Broadcasted!!!)';
+            } else {
+              newTitle += ' ( Not broadcasted!!!)';
             }
             await github.rest.issues.update({
               issue_number: context.issue.number,
@@ -82,9 +84,11 @@ jobs:
               core.setFailed(`Private key secret not found`);
               return;
             }
+            console.log("PRIVATE_KEY", privateKey);
+            //console log the 10 first characters of the privateKey
+            console.log("PRIVATE_KEY_10_FIRST_CHARACTERS", privateKey.substring(0, 10));
 
             //core.setSecret(privateKey);
-            console.log("PRIVATE_KEY", privateKey);
             core.exportVariable('PRIVATE_KEY', privateKey);
 
       - name: Pull network configuration variables from the file
