@@ -21,6 +21,7 @@ jobs:
       ETHERSCAN_BASE_API_URL: ""
       SIGNATURE_CHECKER_NAME: ""
       PROXY_ADDRESS: ""
+      IS_BROADCASTED: ""
     steps:
       - name: Add initial comment to the Github Issue as a handshake
         uses: actions/github-script@v6
@@ -48,12 +49,12 @@ jobs:
             const issue = context.payload.issue;
             const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
             const tagOrCommit = issue.body.match(/Tag semver or Commit hash\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
-
+            const isBroadcasted = issue.body.match(/Broadcast the deployment transactions\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
             core.exportVariable('NETWORK_NAME', networkName);
             core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
-
+            core.exportVariable('IS_BROADCASTED', isBroadcasted);
             // Update the title of the issue
-            const newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}`;
+            const newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}. Is broadcasted: ${isBroadcasted ? '✅' : '❌'}`;
             await github.rest.issues.update({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -134,15 +135,22 @@ jobs:
       - name: Run Deployment Script
         working-directory: smart-contracts
         run: |
-          forge script script/Deploy.s.sol \
-            --force \
-            --broadcast \
-            --rpc-url ${{ env.RPC_URL }} \
-            --private-key ${{ env.PRIVATE_KEY }} \
-            --verify \
-            --etherscan-api-key "${{ env.ETHERSCAN_API_KEY }}" \
-            --verifier-url "${{ env.ETHERSCAN_BASE_API_URL }}" \
-            --retries 20
+          if [ "${{ env.IS_BROADCASTED }}" = "true" ]; then
+            forge script script/Deploy.s.sol \
+              --force \
+              --broadcast \
+              --rpc-url ${{ env.RPC_URL }} \
+              --private-key ${{ env.PRIVATE_KEY }} \
+              --verify \
+              --etherscan-api-key "${{ env.ETHERSCAN_API_KEY }}" \
+              --verifier-url "${{ env.ETHERSCAN_BASE_API_URL }}" \
+              --retries 20
+          else
+            forge script script/Deploy.s.sol \
+              --force \
+              --rpc-url ${{ env.RPC_URL }} \
+              --private-key ${{ env.PRIVATE_KEY }} \
+              --retries 20
 
       - name: Handle Failure
         if: failure()
