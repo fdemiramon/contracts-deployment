@@ -1,0 +1,55 @@
+name: "Deploy or upgrade the core smart contracts"
+description: "Trigger a deployment to a network."
+title: "Leave the title blank as the workflow will override it"
+labels:
+  - "Deploy"
+body:
+  - type: "markdown"
+    attributes:
+      value: "## Network Configurations Status Overview\n\n| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n|---------|--------------|---------|-----------|----------------------|\n| ARBITRUM_MAINNET | [0x88e09...eFdA3](https://blockscan.com/address/0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3) | ✅ | key: ❌ / url: ✅ | RSASignatureChecker |\n| AVALANCHE_MAINNET | [0x88e09...eFdA3](https://blockscan.com/address/0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3) | ✅ | key: ❌ / url: ✅ | RSASignatureChecker |\n| BASE_MAINNET | [0x88e09...eFdA3](https://blockscan.com/address/0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3) | ✅ | key: ❌ / url: ✅ | RSASignatureChecker |\n| ETHEREUM_MAINNET | [0xD18d1...0728d](https://blockscan.com/address/0xD18d17791f2071Bf3C855bA770420a9EdEa0728d) | ✅ | key: ❌ / url: ✅ | RSASignatureChecker |\n| ETHEREUM_TESTNET | [0x6fB48...ad043](https://blockscan.com/address/0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043) | ✅ | key: ❌ / url: ✅ | AlwaysValidSignatureChecker |\n| LINEA_MAINNET | ❌ Not deployed | ✅ | key: ✅ / url: ✅ | EIP191SignatureChecker |\n| LINEA_TESTNET | ❌ Malformed | ✅ | key: ✅ / url: ✅ | EIP191SignatureChecker |\n| OPTIMISM_MAINNET | [0x88e09...eFdA3](https://blockscan.com/address/0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3) | ✅ | key: ❌ / url: ✅ | RSASignatureChecker |\n| POLYGON_MAINNET | [0x88e09...efda3](https://blockscan.com/address/0x88e097c960ad0239b4eec6e8c5b4f74f898efda3) | ✅ | key: ❌ / url: ✅ | RSASignatureChecker |\n| ZKSYNC_MAINNET | [0x61753...7D63D](https://blockscan.com/address/0x617534538624ae12AC8F5A12cbC22491FED7D63D) | ✅ | key: ❌ / url: ✅ | EIP191SignatureChecker |\n"
+    id: "network-status"
+  - type: "markdown"
+    attributes:
+      value: "## Deployment options"
+    id: "network-name"
+  - type: "dropdown"
+    id: "network-select"
+    attributes:
+      label: "Network Name"
+      description: "Select a network for deployment"
+      options:
+        - "ARBITRUM_MAINNET"
+        - "AVALANCHE_MAINNET"
+        - "BASE_MAINNET"
+        - "ETHEREUM_MAINNET"
+        - "ETHEREUM_TESTNET"
+        - "LINEA_MAINNET"
+        - "LINEA_TESTNET"
+        - "OPTIMISM_MAINNET"
+        - "POLYGON_MAINNET"
+        - "ZKSYNC_MAINNET"
+    validations:
+      required: true
+  - type: "input"
+    id: "tagOrCommit"
+    attributes:
+      label: "Tag semver or Commit hash"
+      description: "Get the tag or commit hash from the Github page of the KeyringCore repo."
+    validations:
+      required: true
+  - type: "checkboxes"
+    id: "isBroadcasted"
+    attributes:
+      label: "Broadcast the deployment transactions?"
+      description: "If not checked, will only perform a simulation of the deployment. This is useful to check if the deployment will be successful before broadcasting the transactions."
+      options:
+        - label: "I want to broadcast the deployment transactions"
+          required: false
+  - type: "textarea"
+    id: "comments"
+    attributes:
+      label: "Comments"
+      description: "Add comments related to this deployment"
+      placeholder: "This is a new deployment for the Foo network as ..."
+    validations:
+      required: false

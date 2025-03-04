@@ -1,0 +1,7 @@
+{
+  "RPC_URL": "https://sepolia.infura.io/v3/b1691280d7cc43548476b50e4bb4f828",
+  "ETHERSCAN_API_KEY": "",
+  "ETHERSCAN_BASE_API_URL": "https://api-sepolia.etherscan.io/api",
+  "SIGNATURE_CHECKER_NAME": "AlwaysValidSignatureChecker",
+  "PROXY_ADDRESS": "0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043"
+}

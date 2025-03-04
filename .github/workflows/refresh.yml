@@ -1,0 +1,69 @@
+name: Refresh Network Configurations
+
+permissions:
+  issues: write
+  contents: write
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install js-yaml
+        run: npm install js-yaml
+
+      - name: Generate network configurations and Update Issue template
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('./node_modules/js-yaml');
+
+            // list all the networks in the /networks folder  
+            const networks = fs.readdirSync('./networks');
+
+            let networkTable = '## Network Configurations Status Overview\n\n';
+            networkTable += '| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n';
+            networkTable += '|---------|--------------|---------|-----------|----------------------|\n';
+
+            for (const network of networks) {
+              const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
+              const networkName = network.replace('.json', '');
+              networkTable += `| ${networkName} |`;
+              networkTable += ` ${('PROXY_ADDRESS' in config) ? (config.PROXY_ADDRESS && config.PROXY_ADDRESS.length > 12 ? `[${config.PROXY_ADDRESS.slice(0, 7)}...${config.PROXY_ADDRESS.slice(-5)}](https://blockscan.com/address/${config.PROXY_ADDRESS})` : '❌ Malformed') : '❌ Not deployed'} |`;
+              networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
+              networkTable += ` key: ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} / url: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
+              networkTable += ` ${config.SIGNATURE_CHECKER_NAME} |\n`;
+            }
+
+            const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
+            const template = yaml.load(fs.readFileSync(templatePath, 'utf8'));
+
+            template.body[0].attributes.value = networkTable;
+            template.body[2].attributes.options = networks.map(network => network.replace('.json', ''));
+
+            fs.writeFileSync(templatePath, yaml.dump(template, {
+              lineWidth: -1,
+              quotingType: '"',
+              forceQuotes: true
+            }));
+
+      - name: Push changes to repository
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+            await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
+            await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
+            await exec.exec('git', ['commit', '--allow-empty', '-m', 'chore: update network options and status table in deployment template']);
+            await exec.exec('git', ['push']);

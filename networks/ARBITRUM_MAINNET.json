@@ -1,0 +1,7 @@
+{
+  "RPC_URL": "https://arbitrum-mainnet.infura.io/v3/b1691280d7cc43548476b50e4bb4f828",
+  "ETHERSCAN_API_KEY": "",
+  "ETHERSCAN_BASE_API_URL": "https://api.arbiscan.io/api",
+  "SIGNATURE_CHECKER_NAME": "RSASignatureChecker",
+  "PROXY_ADDRESS": "0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3"
+}
