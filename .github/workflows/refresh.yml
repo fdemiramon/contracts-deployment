@@ -34,23 +34,23 @@ jobs:
 
             let networkTable = '## Network Configurations Status Overview\n\n';
             networkTable += '| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n';
-            networkTable += '|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n';
+            networkTable += '|---------|--------------|---------|-----------|----------------------|\n';
 
             for (const network of networks) {
               const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
-              networkTable += ` ${network} |`;
+              const networkName = network.replace('.json', '');
+              networkTable += `| ${networkName} |`;
               networkTable += ` ${config.PROXY_ADDRESS ? '✅' + config.PROXY_ADDRESS : '❌'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
-              networkTable += ` - _API_KEY: ${config.ETHERSCAN ? '✅' : '❌'} \n`;
-              networkTable += ` - _BASE_API_URL: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} \n`;
-              networkTable += ` ${config.SIGNATURE_CHECKER_NAME}`;
+              networkTable += ` ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} |`;
+              networkTable += ` ${config.SIGNATURE_CHECKER_NAME} |\n`;
             }
 
             const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
             const template = yaml.load(fs.readFileSync(templatePath, 'utf8'));
 
             template.body[0].attributes.value = networkTable;
-            template.body[2].attributes.options = networks;
+            template.body[2].attributes.options = networks.map(network => network.replace('.json', ''));
 
             fs.writeFileSync(templatePath, yaml.dump(template, {
               lineWidth: -1,
