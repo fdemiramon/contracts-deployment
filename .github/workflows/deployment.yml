@@ -63,15 +63,19 @@ jobs:
               title: newTitle
             });
 
+      - name: Build the secret name
+        run: |
+          echo "SECRET_NAME=${{ env.NETWORK_NAME }}_PRIVATE_KEY" >> $GITHUB_ENV
+
       - name: Get the privateKey from the Github secrets
         uses: actions/github-script@v6
+        env:
+          SECRET_NAME: ${{ env.SECRET_NAME }}
         with:
           script: |
-            const secretName = `${process.env.NETWORK_NAME}_PRIVATE_KEY`;
-            const privateKey = github.context.secrets[secretName];
-
+            const privateKey = ${{ secrets[env.SECRET_NAME] }}
             if (!privateKey) {
-              core.setFailed(`Private key secret "${secretName}" not found`);
+              core.setFailed(`Private key secret "${process.env.SECRET_NAME}" not found`);
               return;
             }
 
