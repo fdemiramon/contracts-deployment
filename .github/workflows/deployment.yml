@@ -73,7 +73,7 @@ jobs:
           SECRET_NAME: ${{ env.SECRET_NAME }}
         with:
           script: |
-            console.log("Getting secret", process.env.SECRET_NAME);
+            console.log("This step can be replaced by a integration with a KMS");
             const privateKey ="${{ secrets[env.SECRET_NAME] }}"
             if (!privateKey) {
               core.setFailed(`Private key secret not found`);
@@ -156,8 +156,8 @@ jobs:
             forge script script/Deploy.s.sol \
               --force \
               --rpc-url ${{ env.RPC_URL }} \
-              --private-key ${{ env.PRIVATE_KEY }} \
-              --retries 20
+              --private-key ${{ env.PRIVATE_KEY }}
+          fi
 
       - name: Handle Failure
         if: failure()
