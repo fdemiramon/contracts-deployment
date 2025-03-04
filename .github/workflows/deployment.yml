@@ -80,7 +80,7 @@ jobs:
               return;
             }
 
-            core.setSecret(privateKey);
+            //core.setSecret(privateKey);
             core.exportVariable('PRIVATE_KEY', privateKey);
 
       - name: Pull network configuration variables from the file
