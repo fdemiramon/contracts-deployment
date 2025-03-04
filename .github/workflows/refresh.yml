@@ -40,7 +40,7 @@ jobs:
               const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
               const networkName = network.replace('.json', '');
               networkTable += `| ${networkName} |`;
-              networkTable += ` [${config.PROXY_ADDRESS}](https://blockscan.com/address/address/${config.PROXY_ADDRESS}) `
+              networkTable += ` ${config.PROXY_ADDRESS && config.PROXY_ADDRESS.length > 2 ? `[${config.PROXY_ADDRESS.slice(0, 4)}...${config.PROXY_ADDRESS.slice(-2)}](https://blockscan.com/address/${config.PROXY_ADDRESS})` : '❌'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
               networkTable += ` key: ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} - url: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME} |\n`;
