@@ -1,0 +1,7 @@
+{
+  "RPC_URL": "",
+  "ETHERSCAN_API_KEY": "",
+  "ETHERSCAN_BASE_API_URL": "https://api.polygonscan.com/api",
+  "SIGNATURE_CHECKER_NAME": "RSASignatureChecker",
+  "PROXY_ADDRESS": "0x"
+} 

@@ -5,26 +5,17 @@ permissions:
   contents: write
 
 on:
-  issues:
-    types: [opened]
+  push:
+    paths:
+      - "networks/**"
+  pull_request:
+    paths:
+      - "networks/**"
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'Refresh')
     steps:
-      - name: Add initial comment
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `Refresh workflow began\n\n📊 [View workflow progress](${workflowRunUrl})`
-            });
-
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -44,36 +35,21 @@ jobs:
             const path = require('path');
             const yaml = require('./node_modules/js-yaml');
             const credentials = JSON.parse(process.env.CREDENTIALS);
-            const networks = Object.keys(credentials);
 
-
-            const getNetworkDeploymentStatus = (network) => {
-              const addressFilePath = path.join("networks", network +".txt");
-              console.log(addressFilePath);
-              try {
-                if (fs.existsSync(addressFilePath)) {
-                  const address = fs.readFileSync(addressFilePath, "utf8").trim();
-                  return "`" + address + "`";
-                }
-                return "Not deployed";
-              } catch (error) {
-                console.error(`Error checking network ${network}:`, error);
-                return "Deployment status unknown";
-              }
-            };
+            // list all the networks in the /networks folder  
+            const networks = fs.readdirSync('./networks');
 
             let networkTable = '## Network Configurations Status Overview\n\n';
-            networkTable += '| Network | Address | RPC_URL | PRIVATE_KEY | ETHERSCAN_API_KEY | ETHERSCAN_BASE_API_URL | SIGNATURE_CHECKER_NAME |\n';
+            networkTable += '| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n';
             networkTable += '|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n';
 
             for (const network of networks) {
-              const config = credentials[network];
-              const deployStatus = getNetworkDeploymentStatus(network);
-              networkTable += `| ${network} | ${deployStatus} |`;
+              const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
+              networkTable += ` ${network} |`;
+              networkTable += ` ${config.PROXY_ADDRESS ? '✅' + config.PROXY_ADDRESS : '❌'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
-              networkTable += ` ${config.PRIVATE_KEY ? '✅' : '❌'} |`;
-              networkTable += ` ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} |`;
-              networkTable += ` ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
+              networkTable += ` - _API_KEY: ${config.ETHERSCAN ? '✅' : '❌'} \n`;
+              networkTable += ` - _BASE_API_URL: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} \n`;
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
@@ -115,22 +91,4 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `❌ Refresh workflow failed.\n\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
-            });
-
-      - name: Handle Success
-        if: success()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            await github.rest.issues.addLabels({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ['Success']
-            });
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ Network configurations refresh completed successfully! The deployment template has been updated with the current list of networks.'
             });

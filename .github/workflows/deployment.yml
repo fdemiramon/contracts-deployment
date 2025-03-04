@@ -20,8 +20,9 @@ jobs:
       ETHERSCAN_API_KEY: ""
       ETHERSCAN_BASE_API_URL: ""
       SIGNATURE_CHECKER_NAME: ""
+      PROXY_ADDRESS: ""
     steps:
-      - name: Add initial comment
+      - name: Add initial comment to the Github Issue as a handshake
         uses: actions/github-script@v6
         with:
           script: |
@@ -33,38 +34,25 @@ jobs:
               body: `Workflow began\n\n📊 [View workflow progress](${workflowRunUrl})`
             });
 
-      - name: Prepare environment variables
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          path: deployment-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get NetworkName and TagOrCommit from the Github Issue and update the issue title
         uses: actions/github-script@v6
-        env:
-          CREDENTIALS: ${{ secrets.credentials }}
         with:
           script: |
             const issue = context.payload.issue;
             const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
             const tagOrCommit = issue.body.match(/Tag semver or Commit hash\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
 
-            // Set basic variables
             core.exportVariable('NETWORK_NAME', networkName);
             core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
 
-            // Get and set network credentials
-            const credentials = JSON.parse(process.env.CREDENTIALS);
-            if (!credentials[networkName]) {
-              core.setFailed(`Network "${networkName}" not found in credentials`);
-              return;
-            }
-
-            const networkConfig = credentials[networkName];
-            core.exportVariable('RPC_URL', networkConfig.RPC_URL);
-            core.exportVariable('PRIVATE_KEY', networkConfig.PRIVATE_KEY);
-            core.exportVariable('ETHERSCAN_API_KEY', networkConfig.ETHERSCAN_API_KEY);
-            core.exportVariable('ETHERSCAN_BASE_API_URL', networkConfig.ETHERSCAN_BASE_API_URL);
-            core.exportVariable('SIGNATURE_CHECKER_NAME', networkConfig.SIGNATURE_CHECKER_NAME);
-
-            // Mask sensitive values
-            core.setSecret(networkConfig.PRIVATE_KEY);
-
-            // Update issue title
+            // Update the title of the issue
             const newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}`;
             await github.rest.issues.update({
               issue_number: context.issue.number,
@@ -73,13 +61,42 @@ jobs:
               title: newTitle
             });
 
-      - name: Checkout Deployment Repository
-        uses: actions/checkout@v4
+      - name: Get the privateKey from the Github secrets
+        uses: actions/github-script@v6
         with:
-          path: deployment-repo
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+          script: |
+            console.log("This Workflow step can be replaced by a KMS call to get the private key");
+            const networkName = process.env.NETWORK_NAME;
+            const privateKey = secrets[`${networkName}_PRIVATE_KEY`];
+            if (!privateKey) {
+              core.setFailed(`Private key not found in secrets for "${networkName}". Expecting a secret named "${networkName}_PRIVATE_KEY"`);
+              return;
+            }
+            core.exportVariable('PRIVATE_KEY', privateKey);
+            core.setSecret(privateKey);
 
+      - name: Pull network configuration variables from the file
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Read network configuration from file
+            const networkFile = path.join('deployment-repo', 'networks', `${process.env.NETWORK_NAME}.json`);
+            if (!fs.existsSync(networkFile)) {
+              core.setFailed(`Network configuration file not found for "${process.env.NETWORK_NAME}"`);
+              return;
+            }
+
+            const networkConfig = JSON.parse(fs.readFileSync(networkFile, 'utf8'));
+
+            // Set environment variables from network config
+            core.exportVariable('RPC_URL', networkConfig.RPC_URL);
+            core.exportVariable('ETHERSCAN_API_KEY', networkConfig.ETHERSCAN_API_KEY);
+            core.exportVariable('ETHERSCAN_BASE_API_URL', networkConfig.ETHERSCAN_BASE_API_URL);
+            core.exportVariable('SIGNATURE_CHECKER_NAME', networkConfig.SIGNATURE_CHECKER_NAME);
+            core.exportVariable('PROXY_ADDRESS', networkConfig.PROXY_ADDRESS);
       - name: Checkout Smart Contracts Repository
         uses: actions/checkout@v4
         with:
@@ -87,28 +104,6 @@ jobs:
           ref: ${{ env.TAG_OR_COMMIT }}
           fetch-depth: 0
           path: smart-contracts
-
-      - name: Copy Network File If Exists
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            const sourceFile = path.join('deployment-repo', 'networks', `${process.env.NETWORK_NAME}.txt`);
-            const targetDir = path.join('smart-contracts', 'networks');
-            const targetFile = path.join(targetDir, `${process.env.NETWORK_NAME}.txt`);
-
-            if (fs.existsSync(sourceFile)) {
-              if (!fs.existsSync(targetDir)) {
-                fs.mkdirSync(targetDir, { recursive: true });
-              }
-              
-              fs.copyFileSync(sourceFile, targetFile);
-              console.log(`Copied network file from ${sourceFile} to ${targetFile}`);
-            } else {
-              console.log(`No existing network file found at ${sourceFile}`);
-            }
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -125,19 +120,16 @@ jobs:
         run: |
           forge --version
           forge build --sizes
-        id: build
 
       - name: Run Forge fmt
         working-directory: smart-contracts
         run: |
           forge fmt --check
-        id: fmt
 
       - name: Run Forge tests
         working-directory: smart-contracts
         run: |
           forge test -vvv
-        id: test
 
       - name: Run Deployment Script
         working-directory: smart-contracts
@@ -151,68 +143,21 @@ jobs:
             --etherscan-api-key "${{ env.ETHERSCAN_API_KEY }}" \
             --verifier-url "${{ env.ETHERSCAN_BASE_API_URL }}" \
             --retries 20
-        id: deploy
-
-      - name: Update Network File
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            const sourceFile = path.join('smart-contracts', 'networks', `${process.env.NETWORK_NAME}.txt`);
-            const targetDir = path.join('deployment-repo', 'networks');
-            const targetFile = path.join(targetDir, `${process.env.NETWORK_NAME}.txt`);
-
-            if (!fs.existsSync(sourceFile)) {
-              console.log('No network file found after deployment');
-              return;
-            }
-
-            if (!fs.existsSync(targetDir)) {
-              fs.mkdirSync(targetDir, { recursive: true });
-            }
-
-            const sourceContent = fs.readFileSync(sourceFile, 'utf8');
-            let hasChanged = true;
-
-            if (fs.existsSync(targetFile)) {
-              const targetContent = fs.readFileSync(targetFile, 'utf8');
-              hasChanged = sourceContent !== targetContent;
-            }
-
-            if (hasChanged) {
-              fs.copyFileSync(sourceFile, targetFile);
-              console.log(`Updated network file at ${targetFile}`);
-              
-              await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-              await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
-              
-              await exec.exec('git', ['-C', 'deployment-repo', 'add', path.join('networks', `${process.env.NETWORK_NAME}.txt`)]);
-              await exec.exec('git', ['-C', 'deployment-repo', 'commit', '-m', `chore: update network file for ${process.env.NETWORK_NAME}`]);
-              await exec.exec('git', ['-C', 'deployment-repo', 'push']);
-              
-              console.log('Successfully pushed network file changes');
-            } else {
-              console.log('Network file unchanged, no push needed');
-            }
 
       - name: Handle Failure
         if: failure()
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.issues.addLabels({
-              issue_number: context.issue.number,
+            const commitSha = context.sha;
+            const commitUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}`;
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            await github.rest.repos.createCommitComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['Failure']
-            });
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `❌ Deployment workflow failed.\n\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
+              commit_sha: commitSha,
+              body: `❌ Deployment workflow failed.\n\nPlease check the [workflow logs](${workflowRunUrl}) for more details.`
             });
 
       - name: Handle Success
@@ -220,15 +165,12 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.issues.addLabels({
-              issue_number: context.issue.number,
+            const commitSha = context.sha;
+            const commitUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}`;
+
+            await github.rest.repos.createCommitComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['Success']
-            });
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `✅ Deployment workflow completed successfully!\n\nAll steps have been executed without any errors. This issue can now be closed.`
+              commit_sha: commitSha,
+              body: `✅ Deployment workflow completed successfully!\n\nAll steps have been executed without any errors.`
             });

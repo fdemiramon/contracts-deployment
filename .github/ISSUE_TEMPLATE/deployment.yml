@@ -35,6 +35,13 @@ body:
       description: "Get the tag or commit hash from the Github page of the KeyringCore repo."
     validations:
       required: true
+  - type: "input"
+    id: "tagOrCommit"
+    attributes:
+      label: "Broadcast the deployment transactions"
+      description: "If not checked, will only perform a simulation of the deployment. This is useful to check if the deployment will be successful before broadcasting the transactions."
+    validations:
+      required: false
   - type: "textarea"
     id: "comments"
     attributes:

@@ -1,0 +1,7 @@
+{
+  "RPC_URL": "",
+  "ETHERSCAN_API_KEY": "",
+  "ETHERSCAN_BASE_API_URL": "https://api-optimistic.etherscan.io/api",
+  "SIGNATURE_CHECKER_NAME": "RSASignatureChecker",
+  "PROXY_ADDRESS": "0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3"
+}
