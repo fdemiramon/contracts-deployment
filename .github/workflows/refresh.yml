@@ -36,8 +36,8 @@ jobs:
             const networks = fs.readdirSync('./networks');
 
             let networkTable = '## Network Configurations Status Overview\n\n';
-            networkTable += '| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n';
-            networkTable += '|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n';
+            networkTable += '| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN_API_KEY | ETHERSCAN_BASE_API_URL | SIGNATURE_CHECKER_NAME |\n';
+            networkTable += '|---------|--------------|---------|------------------|---------------------|----------------------|\n';
 
             for (const network of networks) {
               const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
@@ -45,8 +45,8 @@ jobs:
               networkTable += `| ${networkName} |`;
               networkTable += ` ${config.PROXY_ADDRESS ? '✅' + config.PROXY_ADDRESS : '❌'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
-              networkTable += ` - _API_KEY: ${config.ETHERSCAN ? '✅' : '❌'}, `;
-              networkTable += ` - _BASE_API_URL: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
+              networkTable += ` ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} |`;
+              networkTable += ` ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
