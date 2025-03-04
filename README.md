@@ -4,7 +4,7 @@ Contains the Github Actions to deploy the Core smart contract of Keyring.network
 
 ## 1. Quick actions
 
-[![Create Deployment action](https://img.shields.io/badge/Trigger_Deployment_Action-0052CC?style=for-the-badge&logo=github)](https://github.com/keyring-smart-contracts-deployment/issues/new?template=deployment.yml)
+[![Create Deployment action](https://img.shields.io/badge/Trigger_Deployment_Action-0052CC?style=for-the-badge&logo=github)](https://github.com/Keyring-Network/keyring-smart-contracts-deployment/issues/new?template=deployment.yml)
 
 ## 2. Main principles
 
