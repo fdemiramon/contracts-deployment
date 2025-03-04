@@ -65,29 +65,11 @@ jobs:
             await exec.exec('git', ['status']);
 
             // Check if there are any changes to commit
-            const { stdout: status } = await exec.exec('git', ['status', '--porcelain']);
-            if (status.trim()) {
+            const { exitCode, stdout } = await exec.exec('git', ['status', '--porcelain']);
+            if (stdout && stdout.trim()) {
               await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
               await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
               await exec.exec('git', ['push']);
             } else {
               console.log('No changes to commit');
             }
-
-      - name: Handle Failure
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            await github.rest.issues.addLabels({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ['Failure']
-            });
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `❌ Refresh workflow failed.\n\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
-            });
