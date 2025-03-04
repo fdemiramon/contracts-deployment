@@ -60,16 +60,6 @@ jobs:
 
             await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
             await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
-
-            console.log('\nGit status:');
-            await exec.exec('git', ['status']);
-
-            // Check if the deployment template has changed
-            const { stdout } = await exec.exec('git', ['diff', '.github/ISSUE_TEMPLATE/deployment.yml']);
-            if (stdout) {
-              await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
-              await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
-              await exec.exec('git', ['push']);
-            } else {
-              console.log('No changes to deployment template');
-            }
+            await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
+            await exec.exec('git', ['commit', '--allow-empty', '-m', 'chore: update network options and status table in deployment template']);
+            await exec.exec('git', ['push']);
