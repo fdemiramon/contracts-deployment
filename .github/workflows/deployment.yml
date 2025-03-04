@@ -55,7 +55,10 @@ jobs:
             core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
             core.exportVariable('IS_BROADCASTED', isBroadcasted);
             // Update the title of the issue
-            const newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}. Is broadcasted: ${${isBroadcasted} ? '✅' : '❌'}`;
+            const newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}`;
+            if (isBroadcasted) {
+              newTitle += ' ( 🔥🔥🔥 Broadcasted!!!)';
+            }
             await github.rest.issues.update({
               issue_number: context.issue.number,
               owner: context.repo.owner,
