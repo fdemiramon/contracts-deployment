@@ -73,6 +73,7 @@ jobs:
           SECRET_NAME: ${{ env.SECRET_NAME }}
         with:
           script: |
+            console.log("Getting secret", env.SECRET_NAME);
             const privateKey = ${{ secrets[env.SECRET_NAME] }}
             if (!privateKey) {
               core.setFailed(`Private key secret not found`);
