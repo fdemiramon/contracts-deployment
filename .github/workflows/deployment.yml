@@ -57,9 +57,9 @@ jobs:
             // Update the title of the issue
             let newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}`;
             if (isBroadcasted === 'true') {
-              newTitle += ' ( 🔥🔥🔥 Broadcasted!!!)';
+              newTitle += ' (🔥🔥🔥 Broadcasted!!!)';
             } else {
-              newTitle += ' ( Not broadcasted!!!)';
+              newTitle += ' (Not broadcasted!!!)';
             }
             await github.rest.issues.update({
               issue_number: context.issue.number,
