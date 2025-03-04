@@ -112,7 +112,16 @@ jobs:
             core.exportVariable('ETHERSCAN_API_KEY', networkConfig.ETHERSCAN_API_KEY);
             core.exportVariable('ETHERSCAN_BASE_API_URL', networkConfig.ETHERSCAN_BASE_API_URL);
             core.exportVariable('SIGNATURE_CHECKER_NAME', networkConfig.SIGNATURE_CHECKER_NAME);
-            core.exportVariable('PROXY_ADDRESS', networkConfig.PROXY_ADDRESS);
+
+            // Validate PROXY_ADDRESS format
+            const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+            if ('PROXY_ADDRESS' in networkConfig && networkConfig.PROXY_ADDRESS && ethAddressRegex.test(networkConfig.PROXY_ADDRESS)) {
+              core.exportVariable('PROXY_ADDRESS', networkConfig.PROXY_ADDRESS);
+            } else {
+              core.exportVariable('PROXY_ADDRESS', '');
+              console.log('PROXY_ADDRESS is either missing or not a valid Ethereum address');
+            }
+
       - name: Checkout Smart Contracts Repository
         uses: actions/checkout@v4
         with:
