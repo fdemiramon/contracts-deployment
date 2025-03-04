@@ -23,43 +23,34 @@ jobs:
 
       - name: Check Network Configurations and Update Template
         uses: actions/github-script@v6
-        env:
-          CREDENTIALS: ${{ secrets.credentials }}
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
             const yaml = require('./node_modules/js-yaml');
-            const credentials = JSON.parse(process.env.CREDENTIALS);
 
             // list all the networks in the /networks folder  
             const networks = fs.readdirSync('./networks');
 
             let networkTable = '## Network Configurations Status Overview\n\n';
-            networkTable += '| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN_API_KEY | ETHERSCAN_BASE_API_URL | SIGNATURE_CHECKER_NAME |\n';
-            networkTable += '|---------|--------------|---------|------------------|---------------------|----------------------|\n';
+            networkTable += '| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n';
+            networkTable += '|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n';
 
             for (const network of networks) {
               const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
-              const networkName = network.replace('.json', '');
-              networkTable += `| ${networkName} |`;
-              networkTable += ` ${config.PROXY_ADDRESS} |`;
+              networkTable += ` ${network} |`;
+              networkTable += ` ${config.PROXY_ADDRESS ? '✅' + config.PROXY_ADDRESS : '❌'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
-              networkTable += ` ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} |`;
-              networkTable += ` ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
-              networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
+              networkTable += ` - _API_KEY: ${config.ETHERSCAN ? '✅' : '❌'} \n`;
+              networkTable += ` - _BASE_API_URL: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} \n`;
+              networkTable += ` ${config.SIGNATURE_CHECKER_NAME}`;
             }
 
             const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
             const template = yaml.load(fs.readFileSync(templatePath, 'utf8'));
 
-            // Update the template with unique IDs and network names without .json extension
-            template.body[0].id = 'network-status';
             template.body[0].attributes.value = networkTable;
-
-            template.body[1].id = 'network-name';
-            template.body[2].id = 'network-select';
-            template.body[2].attributes.options = networks.map(network => network.replace('.json', ''));
+            template.body[2].attributes.options = networks;
 
             fs.writeFileSync(templatePath, yaml.dump(template, {
               lineWidth: -1,
@@ -76,3 +67,21 @@ jobs:
             await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
             await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
             await exec.exec('git', ['push']);
+
+      - name: Handle Failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Failure']
+            });
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ Refresh workflow failed.\n\nPlease check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for more details.`
+            });
