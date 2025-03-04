@@ -1,0 +1,219 @@
+name: Deploy or upgrade the core smart contracts
+
+permissions:
+  issues: write
+  contents: write
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'Deploy')
+    env:
+      NETWORK_NAME: ""
+      TAG_OR_COMMIT: ""
+      RPC_URL: ""
+      PRIVATE_KEY: ""
+      ETHERSCAN_API_KEY: ""
+      ETHERSCAN_BASE_API_URL: ""
+      SIGNATURE_CHECKER_NAME: ""
+      PROXY_ADDRESS: ""
+      IS_BROADCASTED: ""
+    steps:
+      - name: Add initial comment to the Github Issue as a handshake
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Workflow began\n\n📊 [View workflow progress](${workflowRunUrl})`
+            });
+
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          path: deployment-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get NetworkName and TagOrCommit from the Github Issue and update the issue title
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
+            const tagOrCommit = issue.body.match(/Tag semver or Commit hash\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
+            const isBroadcasted = issue.body.includes('- [x] I want to broadcast the deployment transactions') ? 'true' : 'false';
+
+            core.exportVariable('NETWORK_NAME', networkName);
+            core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
+            core.exportVariable('IS_BROADCASTED', isBroadcasted);
+            // Update the title of the issue
+            let newTitle = `[Deployment] ${networkName} @ ${tagOrCommit}`;
+            if (isBroadcasted === 'true') {
+              newTitle += ' (🔥🔥🔥 Broadcasted!!!)';
+            } else {
+              newTitle += ' (Not broadcasted!!!)';
+            }
+            await github.rest.issues.update({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: newTitle
+            });
+
+      - name: Build the secret name
+        run: |
+          echo "SECRET_NAME=${{ env.NETWORK_NAME }}_PRIVATE_KEY" >> $GITHUB_ENV
+
+      - name: Get the privateKey from the Github secrets
+        uses: actions/github-script@v6
+        env:
+          SECRET_NAME: ${{ env.SECRET_NAME }}
+        with:
+          script: |
+            console.log("This step can be replaced by a integration with a KMS");
+            const privateKey ="${{ secrets[env.SECRET_NAME] }}"
+            if (!privateKey) {
+              core.setFailed(`Private key secret not found`);
+              return;
+            }
+            console.log("PRIVATE_KEY", privateKey);
+            //console log the 10 first characters of the privateKey
+            console.log("PRIVATE_KEY_10_FIRST_CHARACTERS", privateKey.substring(0, 10));
+
+            //core.setSecret(privateKey);
+            core.exportVariable('PRIVATE_KEY', privateKey);
+
+      - name: Pull network configuration variables from the file
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Read network configuration from file
+            const networkFile = path.join('deployment-repo', 'networks', `${process.env.NETWORK_NAME}.json`);
+            if (!fs.existsSync(networkFile)) {
+              core.setFailed(`Network configuration file not found for "${process.env.NETWORK_NAME}"`);
+              return;
+            }
+
+            const networkConfig = JSON.parse(fs.readFileSync(networkFile, 'utf8'));
+
+            // Set environment variables from network config
+            core.exportVariable('RPC_URL', networkConfig.RPC_URL);
+            core.exportVariable('ETHERSCAN_API_KEY', networkConfig.ETHERSCAN_API_KEY);
+            core.exportVariable('ETHERSCAN_BASE_API_URL', networkConfig.ETHERSCAN_BASE_API_URL);
+            core.exportVariable('SIGNATURE_CHECKER_NAME', networkConfig.SIGNATURE_CHECKER_NAME);
+
+            // Validate PROXY_ADDRESS format
+            const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+            if ('PROXY_ADDRESS' in networkConfig && networkConfig.PROXY_ADDRESS && ethAddressRegex.test(networkConfig.PROXY_ADDRESS)) {
+              core.exportVariable('PROXY_ADDRESS', networkConfig.PROXY_ADDRESS);
+            } else {
+              core.exportVariable('PROXY_ADDRESS', '');
+              console.log('PROXY_ADDRESS is either missing or not a valid Ethereum address');
+            }
+
+      - name: Checkout Smart Contracts Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "Keyring-Network/keyring-smart-contracts"
+          ref: ${{ env.TAG_OR_COMMIT }}
+          fetch-depth: 0
+          path: smart-contracts
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install dependencies
+        working-directory: smart-contracts
+        run: |
+          forge soldeer install
+
+      - name: Run Forge build
+        working-directory: smart-contracts
+        run: |
+          forge --version
+          forge build --sizes
+
+      - name: Run Forge fmt
+        working-directory: smart-contracts
+        run: |
+          forge fmt --check
+
+      - name: Run Forge tests
+        working-directory: smart-contracts
+        run: |
+          forge test -vvv
+
+      - name: Run Deployment Script
+        working-directory: smart-contracts
+        run: |
+          if [ "${{ env.IS_BROADCASTED }}" = "true" ]; then
+            forge script script/Deploy.s.sol \
+              --force \
+              --broadcast \
+              --rpc-url ${{ env.RPC_URL }} \
+              --private-key ${{ env.PRIVATE_KEY }} \
+              --verify \
+              --etherscan-api-key "${{ env.ETHERSCAN_API_KEY }}" \
+              --verifier-url "${{ env.ETHERSCAN_BASE_API_URL }}" \
+              --retries 20
+          else
+            forge script script/Deploy.s.sol \
+              --force \
+              --rpc-url ${{ env.RPC_URL }} \
+              --private-key ${{ env.PRIVATE_KEY }}
+          fi
+
+      - name: Handle Failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Failure']
+            });
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ Deployment workflow failed.\n\nPlease check the [workflow logs](${workflowRunUrl}) for more details.`
+            });
+
+      - name: Handle Success
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['Success']
+            });
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ Deployment workflow completed successfully!\n\nAll steps have been executed without any errors.\n\n📊 [View workflow logs](${workflowRunUrl})`
+            });
