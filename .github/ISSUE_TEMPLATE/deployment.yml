@@ -36,7 +36,7 @@ body:
     validations:
       required: true
   - type: "input"
-    id: "tagOrCommit"
+    id: "isBroadcasted"
     attributes:
       label: "Broadcast the deployment transactions"
       description: "If not checked, will only perform a simulation of the deployment. This is useful to check if the deployment will be successful before broadcasting the transactions."
