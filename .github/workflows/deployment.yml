@@ -75,7 +75,7 @@ jobs:
           script: |
             const privateKey = ${{ secrets[env.SECRET_NAME] }}
             if (!privateKey) {
-              core.setFailed(`Private key secret "${process.env.SECRET_NAME}" not found`);
+              core.setFailed(`Private key secret not found`);
               return;
             }
 
