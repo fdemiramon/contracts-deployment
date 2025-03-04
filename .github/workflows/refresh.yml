@@ -64,12 +64,12 @@ jobs:
             console.log('\nGit status:');
             await exec.exec('git', ['status']);
 
-            // Check if there are any changes to commit
-            const { exitCode, stdout } = await exec.exec('git', ['status', '--porcelain']);
-            if (stdout && stdout.trim()) {
+            // Check if the deployment template has changed
+            const { stdout } = await exec.exec('git', ['diff', '.github/ISSUE_TEMPLATE/deployment.yml']);
+            if (stdout) {
               await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
               await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
               await exec.exec('git', ['push']);
             } else {
-              console.log('No changes to commit');
+              console.log('No changes to deployment template');
             }
