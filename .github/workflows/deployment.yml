@@ -49,7 +49,8 @@ jobs:
             const issue = context.payload.issue;
             const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
             const tagOrCommit = issue.body.match(/Tag semver or Commit hash\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
-            const isBroadcasted = issue.body.match(/Broadcast the deployment transactions\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
+            const isBroadcasted = issue.body.includes('Broadcast the deployment transactions\r?\n\r?\n- [x]') ? 'true' : 'false';
+
             core.exportVariable('NETWORK_NAME', networkName);
             core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
             core.exportVariable('IS_BROADCASTED', isBroadcasted);
@@ -68,13 +69,16 @@ jobs:
           script: |
             console.log("This Workflow step can be replaced by a KMS call to get the private key");
             const networkName = process.env.NETWORK_NAME;
-            const privateKey = secrets[`${networkName}_PRIVATE_KEY`];
-            if (!privateKey) {
-              core.setFailed(`Private key not found in secrets for "${networkName}". Expecting a secret named "${networkName}_PRIVATE_KEY"`);
+            const secretName = `${networkName}_PRIVATE_KEY`;
+
+            if (!secrets.hasOwnProperty(secretName)) {
+              core.setFailed(`Private key secret not found for "${networkName}". Expecting a secret named "${secretName}"`);
               return;
             }
-            core.exportVariable('PRIVATE_KEY', privateKey);
+
+            const privateKey = secrets[secretName];
             core.setSecret(privateKey);
+            core.exportVariable('PRIVATE_KEY', privateKey);
 
       - name: Pull network configuration variables from the file
         uses: actions/github-script@v6
@@ -157,14 +161,19 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const commitSha = context.sha;
-            const commitUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}`;
             const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
-            await github.rest.repos.createCommitComment({
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              commit_sha: commitSha,
+              labels: ['Failure']
+            });
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               body: `❌ Deployment workflow failed.\n\nPlease check the [workflow logs](${workflowRunUrl}) for more details.`
             });
 
@@ -173,12 +182,18 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const commitSha = context.sha;
-            const commitUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}`;
+            const workflowRunUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
-            await github.rest.repos.createCommitComment({
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              commit_sha: commitSha,
-              body: `✅ Deployment workflow completed successfully!\n\nAll steps have been executed without any errors.`
+              labels: ['Success']
+            });
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ Deployment workflow completed successfully!\n\nAll steps have been executed without any errors.\n\n📊 [View workflow logs](${workflowRunUrl})`
             });
