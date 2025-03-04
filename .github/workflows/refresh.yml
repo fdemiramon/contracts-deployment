@@ -21,7 +21,7 @@ jobs:
       - name: Install js-yaml
         run: npm install js-yaml
 
-      - name: Check Network Configurations and Update Template
+      - name: Generate network configurations and Update Issue template
         uses: actions/github-script@v6
         with:
           script: |
@@ -58,6 +58,10 @@ jobs:
               forceQuotes: true
             }));
 
+      - name: Push changes to repository
+        uses: actions/github-script@v6
+        with:
+          script: |
             await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
             await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
             await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
