@@ -6,7 +6,7 @@ labels:
 body:
   - type: "markdown"
     attributes:
-      value: "## Network Configurations Status Overview\n\n| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n ARBITRUM_MAINNET.json | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n RSASignatureChecker AVALANCHE_MAINNET.json | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n RSASignatureChecker BASE_MAINNET.json | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n RSASignatureChecker ETHEREUM_MAINNET.json | ✅0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n RSASignatureChecker ETHEREUM_TESTNET.json | ✅0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n AlwaysValidSignatureChecker LINEA_MAINNET.json | ✅0x | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n EIP191SignatureChecker LINEA_TESTNET.json | ✅0x | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n EIP191SignatureChecker OPTIMISM_MAINNET.json | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n RSASignatureChecker POLYGON_MAINNET.json | ✅0x88e097c960ad0239b4eec6e8c5b4f74f898efda3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n RSASignatureChecker ZKSYNC_MAINNET.json | ✅0x617534538624ae12AC8F5A12cbC22491FED7D63D | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n EIP191SignatureChecker"
+      value: "## Network Configurations Status Overview\n\n| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n|---------|--------------|---------|-----------|----------------------|\n| ARBITRUM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | RSASignatureChecker |\n| AVALANCHE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | RSASignatureChecker |\n| BASE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | RSASignatureChecker |\n| ETHEREUM_MAINNET | ✅0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ✅ | ❌ | RSASignatureChecker |\n| ETHEREUM_TESTNET | ✅0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ✅ | ❌ | AlwaysValidSignatureChecker |\n| LINEA_MAINNET | ✅0x | ✅ | ✅ | EIP191SignatureChecker |\n| LINEA_TESTNET | ✅0x | ✅ | ✅ | EIP191SignatureChecker |\n| OPTIMISM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | RSASignatureChecker |\n| POLYGON_MAINNET | ✅0x88e097c960ad0239b4eec6e8c5b4f74f898efda3 | ✅ | ❌ | RSASignatureChecker |\n| ZKSYNC_MAINNET | ✅0x617534538624ae12AC8F5A12cbC22491FED7D63D | ✅ | ❌ | EIP191SignatureChecker |\n"
     id: "network-status"
   - type: "markdown"
     attributes:
@@ -18,16 +18,16 @@ body:
       label: "Network Name"
       description: "Select a network for deployment"
       options:
-        - "ARBITRUM_MAINNET.json"
-        - "AVALANCHE_MAINNET.json"
-        - "BASE_MAINNET.json"
-        - "ETHEREUM_MAINNET.json"
-        - "ETHEREUM_TESTNET.json"
-        - "LINEA_MAINNET.json"
-        - "LINEA_TESTNET.json"
-        - "OPTIMISM_MAINNET.json"
-        - "POLYGON_MAINNET.json"
-        - "ZKSYNC_MAINNET.json"
+        - "ARBITRUM_MAINNET"
+        - "AVALANCHE_MAINNET"
+        - "BASE_MAINNET"
+        - "ETHEREUM_MAINNET"
+        - "ETHEREUM_TESTNET"
+        - "LINEA_MAINNET"
+        - "LINEA_TESTNET"
+        - "OPTIMISM_MAINNET"
+        - "POLYGON_MAINNET"
+        - "ZKSYNC_MAINNET"
     validations:
       required: true
   - type: "input"
