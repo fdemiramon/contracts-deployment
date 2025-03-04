@@ -46,7 +46,7 @@ jobs:
               networkTable += ` ${config.PROXY_ADDRESS ? '✅' + config.PROXY_ADDRESS : '❌'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
               networkTable += ` - _API_KEY: ${config.ETHERSCAN ? '✅' : '❌'} \n`;
-              networkTable += ` - _BASE_API_URL: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} \n`;
+              networkTable += ` - _BASE_API_URL: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME ? '✅' : '❌'} |\n`;
             }
 
