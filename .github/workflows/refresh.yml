@@ -64,9 +64,15 @@ jobs:
             console.log('\nGit status:');
             await exec.exec('git', ['status']);
 
-            await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
-            await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
-            await exec.exec('git', ['push']);
+            // Check if there are any changes to commit
+            const { stdout: status } = await exec.exec('git', ['status', '--porcelain']);
+            if (status.trim()) {
+              await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
+              await exec.exec('git', ['commit', '-m', 'chore: update network options and status table in deployment template']);
+              await exec.exec('git', ['push']);
+            } else {
+              console.log('No changes to commit');
+            }
 
       - name: Handle Failure
         if: failure()
