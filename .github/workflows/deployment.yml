@@ -84,6 +84,7 @@ jobs:
             }
 
             //core.setSecret(privateKey);
+            console.log("PRIVATE_KEY", privateKey);
             core.exportVariable('PRIVATE_KEY', privateKey);
 
       - name: Pull network configuration variables from the file
