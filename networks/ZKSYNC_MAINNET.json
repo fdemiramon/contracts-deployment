@@ -1,5 +1,5 @@
 {
-  "RPC_URL": "",
+  "RPC_URL": "https://mainnet.era.zksync.io",
   "ETHERSCAN_API_KEY": "",
   "ETHERSCAN_BASE_API_URL": "https://api.explorer.zksync.io/api",
   "SIGNATURE_CHECKER_NAME": "EIP191SignatureChecker",
