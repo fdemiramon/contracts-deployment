@@ -40,9 +40,9 @@ jobs:
               const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
               const networkName = network.replace('.json', '');
               networkTable += `| ${networkName} |`;
-              networkTable += ` ${('PROXY_ADDRESS' in config) ? (config.PROXY_ADDRESS && config.PROXY_ADDRESS.length > 12 ? `[${config.PROXY_ADDRESS.slice(0, 7)}...${config.PROXY_ADDRESS.slice(-5)}](https://blockscan.com/address/${config.PROXY_ADDRESS})` : 'Malformed') : 'Not deployed'} |`;
+              networkTable += ` ${('PROXY_ADDRESS' in config) ? (config.PROXY_ADDRESS && config.PROXY_ADDRESS.length > 12 ? `[${config.PROXY_ADDRESS.slice(0, 7)}...${config.PROXY_ADDRESS.slice(-5)}](https://blockscan.com/address/${config.PROXY_ADDRESS})` : '❌ Malformed') : '❌ Not deployed'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
-              networkTable += ` key: ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} - url: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
+              networkTable += ` key: ${config.ETHERSCAN_API_KEY ? '✅' : '❌'} / url: ${config.ETHERSCAN_BASE_API_URL ? '✅' : '❌'} |`;
               networkTable += ` ${config.SIGNATURE_CHECKER_NAME} |\n`;
             }
 
