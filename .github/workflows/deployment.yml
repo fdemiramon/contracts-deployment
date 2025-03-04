@@ -49,7 +49,7 @@ jobs:
             const issue = context.payload.issue;
             const networkName = issue.body.match(/Network Name\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
             const tagOrCommit = issue.body.match(/Tag semver or Commit hash\r?\n\r?\n([^\n]+)/)?.[1] || 'Not specified';
-            const isBroadcasted = issue.body.includes('Broadcast the deployment transactions\r?\n\r?\n- [x]') ? 'true' : 'false';
+            const isBroadcasted = issue.body.includes('- [x] I want to broadcast the deployment transactions') ? 'true' : 'false';
 
             core.exportVariable('NETWORK_NAME', networkName);
             core.exportVariable('TAG_OR_COMMIT', tagOrCommit);
