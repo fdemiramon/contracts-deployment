@@ -6,7 +6,7 @@ labels:
 body:
   - type: "markdown"
     attributes:
-      value: "## Network Configurations Status Overview\n\n| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN_API_KEY | ETHERSCAN_BASE_API_URL | SIGNATURE_CHECKER_NAME |\n|---------|--------------|---------|------------------|---------------------|----------------------|\n| ARBITRUM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| AVALANCHE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| BASE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| ETHEREUM_MAINNET | ✅0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ✅ | ❌ | ✅ | ✅ |\n| ETHEREUM_TESTNET | ✅0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ✅ | ❌ | ✅ | ✅ |\n| OPTIMISM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| POLYGON_MAINNET | ✅0x88e097c960ad0239b4eec6e8c5b4f74f898efda3 | ✅ | ❌ | ✅ | ✅ |\n| ZKSYNC_MAINNET | ✅0x617534538624ae12AC8F5A12cbC22491FED7D63D | ✅ | ❌ | ✅ | ✅ |\n"
+      value: "## Network Configurations Status Overview\n\n| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN_API_KEY | ETHERSCAN_BASE_API_URL | SIGNATURE_CHECKER_NAME |\n|---------|--------------|---------|------------------|---------------------|----------------------|\n| ARBITRUM_MAINNET | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| AVALANCHE_MAINNET | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| BASE_MAINNET | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| ETHEREUM_MAINNET | 0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ✅ | ❌ | ✅ | ✅ |\n| ETHEREUM_TESTNET | 0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ✅ | ❌ | ✅ | ✅ |\n| LINEA_MAINNET | 0x | ✅ | ✅ | ✅ | ✅ |\n| LINEA_TESTNET | 0x | ✅ | ✅ | ✅ | ✅ |\n| OPTIMISM_MAINNET | 0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | ❌ | ✅ | ✅ |\n| POLYGON_MAINNET | 0x88e097c960ad0239b4eec6e8c5b4f74f898efda3 | ✅ | ❌ | ✅ | ✅ |\n| ZKSYNC_MAINNET | 0x617534538624ae12AC8F5A12cbC22491FED7D63D | ✅ | ❌ | ✅ | ✅ |\n"
     id: "network-status"
   - type: "markdown"
     attributes:
@@ -23,6 +23,8 @@ body:
         - "BASE_MAINNET"
         - "ETHEREUM_MAINNET"
         - "ETHEREUM_TESTNET"
+        - "LINEA_MAINNET"
+        - "LINEA_TESTNET"
         - "OPTIMISM_MAINNET"
         - "POLYGON_MAINNET"
         - "ZKSYNC_MAINNET"
