@@ -6,10 +6,12 @@ labels:
 body:
   - type: "markdown"
     attributes:
-      value: "## Network Configurations Status Overview\n\n| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n| ARBITRUM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n| AVALANCHE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n| BASE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n| ETHEREUM_MAINNET | ✅0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n| ETHEREUM_TESTNET | ✅0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n| OPTIMISM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n| POLYGON_MAINNET | ✅0x88e097c960ad0239b4eec6e8c5b4f74f898efda3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n| ZKSYNC_MAINNET | ✅0x617534538624ae12AC8F5A12cbC22491FED7D63D | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ \n ✅ |\n"
+      value: "## Network Configurations Status Overview\n\n| Network | PROXY_ADDRESS | RPC_URL | ETHERSCAN | SIGNATURE_CHECKER_NAME |\n|---------|---------|---------|-------------|-------------------|------------------------|------------------------|\n| ARBITRUM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n| AVALANCHE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n| BASE_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n| ETHEREUM_MAINNET | ✅0xD18d17791f2071Bf3C855bA770420a9EdEa0728d | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n| ETHEREUM_TESTNET | ✅0x6fB4880678bFf1792eBF1C3FDdc16E4fbF4ad043 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n| OPTIMISM_MAINNET | ✅0x88e097C960aD0239B4eEC6E8C5B4f74f898eFdA3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n| POLYGON_MAINNET | ✅0x88e097c960ad0239b4eec6e8c5b4f74f898efda3 | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n| ZKSYNC_MAINNET | ✅0x617534538624ae12AC8F5A12cbC22491FED7D63D | ✅ | - _API_KEY: ❌ \n - _BASE_API_URL: ✅ | ✅ |\n"
+    id: "network-status"
   - type: "markdown"
     attributes:
       value: "## Deployment options"
+    id: "network-name"
   - type: "dropdown"
     id: "network-select"
     attributes:
@@ -33,14 +35,13 @@ body:
       description: "Get the tag or commit hash from the Github page of the KeyringCore repo."
     validations:
       required: true
-
-  - type: checkboxes
+  - type: "checkboxes"
     id: "isBroadcasted"
     attributes:
       label: "Broadcast the deployment transactions"
       description: "If not checked, will only perform a simulation of the deployment. This is useful to check if the deployment will be successful before broadcasting the transactions."
       options:
-        - label: I confirm that I want to broadcast the deployment transactions
+        - label: "I confirm that I want to broadcast the deployment transactions"
           required: false
   - type: "textarea"
     id: "comments"
