@@ -1,7 +1,7 @@
 {
   "RPC_URL": "https://api.lineascan.build/api",
   "ETHERSCAN_API_KEY": "MSK9F8BRQU7CA46TQPT82SEQC6AHWAAEEX",
-  "ETHERSCAN_BASE_API_URL": "https://api-sepolia.lineascan.build/api",
+  "ETHERSCAN_BASE_API_URL": "https://api.lineascan.build/api",
   "SIGNATURE_CHECKER_NAME": "EIP191SignatureChecker",
   "PROXY_ADDRESS": "0x"
 }
