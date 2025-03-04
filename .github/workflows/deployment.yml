@@ -71,7 +71,7 @@ jobs:
             const networkName = process.env.NETWORK_NAME;
             const secretName = `${networkName}_PRIVATE_KEY`;
             console.log(secretName);
-            console.log(secrets.LINEA_TESTNET_PRIVATE_KEY);
+            console.log(${{ secrets.LINEA_TESTNET_PRIVATE_KEY }});
             console.log(secrets[secretName]);
             if (!github.context.secrets[secretName]) {
               core.setFailed(`Private key secret not found for "${networkName}". Expecting a secret named "${secretName}"`);
