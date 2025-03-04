@@ -6,11 +6,7 @@ permissions:
 
 on:
   push:
-    paths:
-      - "networks/**"
   pull_request:
-    paths:
-      - "networks/**"
 
 jobs:
   refresh:
@@ -45,7 +41,8 @@ jobs:
 
             for (const network of networks) {
               const config = JSON.parse(fs.readFileSync(`./networks/${network}`, 'utf8'));
-              networkTable += ` ${network} |`;
+              const networkName = network.replace('.json', '');
+              networkTable += `| ${networkName} |`;
               networkTable += ` ${config.PROXY_ADDRESS ? '✅' + config.PROXY_ADDRESS : '❌'} |`;
               networkTable += ` ${config.RPC_URL ? '✅' : '❌'} |`;
               networkTable += ` - _API_KEY: ${config.ETHERSCAN ? '✅' : '❌'} \n`;
@@ -56,8 +53,13 @@ jobs:
             const templatePath = '.github/ISSUE_TEMPLATE/deployment.yml';
             const template = yaml.load(fs.readFileSync(templatePath, 'utf8'));
 
+            // Update the template with unique IDs and network names without .json extension
+            template.body[0].id = 'network-status';
             template.body[0].attributes.value = networkTable;
-            template.body[2].attributes.options = networks;
+
+            template.body[1].id = 'network-name';
+            template.body[2].id = 'network-select';
+            template.body[2].attributes.options = networks.map(network => network.replace('.json', ''));
 
             fs.writeFileSync(templatePath, yaml.dump(template, {
               lineWidth: -1,
