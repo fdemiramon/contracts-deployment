@@ -70,7 +70,8 @@ jobs:
             console.log("This Workflow step can be replaced by a KMS call to get the private key");
             const networkName = process.env.NETWORK_NAME;
             const secretName = `${networkName}_PRIVATE_KEY`;
-
+            console.log(github.context.secrets);
+            console.log(github.context.secrets[secretName]);
             if (!github.context.secrets[secretName]) {
               core.setFailed(`Private key secret not found for "${networkName}". Expecting a secret named "${secretName}"`);
               return;
