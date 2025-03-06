@@ -175,7 +175,59 @@ jobs:
               --rpc-url ${{ env.RPC_URL }} \
               --private-key ${{ env.PRIVATE_KEY }}
           fi
+      - name: Read Broadcast Results
+        if: env.IS_BROADCASTED == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            process.chdir('smart-contracts');
+            const fs = require('fs');
+            const path = require('path');
+            const broadcastDir = path.join('broadcast', 'Deploy.s.sol');
+            const chainDirs = fs.readdirSync(broadcastDir);
 
+            if (chainDirs.length !== 1) {
+              core.setFailed('Expected exactly one chain directory in broadcast folder');
+              return;
+            }
+
+            const chainDir = chainDirs[0];
+            const latestRunPath = path.join(broadcastDir, chainDir, 'run-latest.json');
+
+            if (!fs.existsSync(latestRunPath)) {
+              core.setFailed('run-latest.json not found');
+              return;
+            }
+
+            const runData = JSON.parse(fs.readFileSync(latestRunPath, 'utf8'));
+            const proxyTransaction = runData.transactions.find(tx => 
+              tx.transactionType === "CREATE" && 
+              tx.contractName === "ERC1967Proxy"
+            );
+
+            if (!proxyTransaction || !proxyTransaction.contractAddress) {
+              console.log('No new proxy deployment found in transactions');
+              return;
+            }
+
+            console.log('ERC1967Proxy deployed at:', proxyTransaction.contractAddress);
+            const proxyAddress = proxyTransaction.contractAddress;
+
+            // Update network config file with new proxy address
+            process.chdir('..');  // Move back to root
+            process.chdir('deployment-repo');  // Enter deployment-repo directory
+
+            const networkConfigPath = path.join('networks', `${process.env.NETWORK_NAME}.json`);
+            const networkConfig = JSON.parse(fs.readFileSync(networkConfigPath, 'utf8'));
+            networkConfig.PROXY_ADDRESS = proxyAddress;
+            fs.writeFileSync(networkConfigPath, JSON.stringify(networkConfig, null, 2));
+
+            // Git commit the updated network config
+            await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+            await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
+            await exec.exec('git', ['add', `networks/${process.env.NETWORK_NAME}.json`]);
+            await exec.exec('git', ['commit', '--allow-empty', '-m', `chore: update proxy address for network ${process.env.NETWORK_NAME}`]);
+            await exec.exec('git', ['push']);
       - name: Handle Failure
         if: failure()
         uses: actions/github-script@v6
