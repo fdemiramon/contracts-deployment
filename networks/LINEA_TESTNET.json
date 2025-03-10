@@ -3,6 +3,5 @@
   "ETHERSCAN_API_KEY": "MSK9F8BRQU7CA46TQPT82SEQC6AHWAAEEX",
   "ETHERSCAN_BASE_API_URL": "https://api-sepolia.lineascan.build/api",
   "SIGNATURE_CHECKER_NAME": "EIP191SignatureChecker",
-  "PROXY_ADDRESS": "0x0"
-  
+  "PROXY_ADDRESS": "0x41ced5b82b73ad1aaae500b1ad3b7a4848b79ce7"
 }
