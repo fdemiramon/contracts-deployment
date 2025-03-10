@@ -7,6 +7,7 @@ permissions:
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   refresh:
@@ -62,8 +63,51 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-            await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
-            await exec.exec('git', ['add', '.github/ISSUE_TEMPLATE/deployment.yml']);
-            await exec.exec('git', ['commit', '--allow-empty', '-m', 'chore: update network options and status table in deployment template']);
-            await exec.exec('git', ['push']);
+            const fs = require('fs');
+
+            try {
+              // Get current file SHA
+              const fileResponse = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/ISSUE_TEMPLATE/deployment.yml'
+              });
+
+              // Update file content through API
+              await github.rest.repos.createOrUpdateFileContents({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/ISSUE_TEMPLATE/deployment.yml',
+                message: 'chore: update network options and status table in deployment template',
+                content: Buffer.from(fs.readFileSync('.github/ISSUE_TEMPLATE/deployment.yml', 'utf8')).toString('base64'),
+                sha: fileResponse.data.sha,
+                branch: context.ref.replace('refs/heads/', '')
+              });
+            } catch (error) {
+              core.setFailed(`Error updating file: ${error.message}`);
+            }
+
+      # For empty commits if needed
+      - name: Create empty commit
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const ref = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.ref.replace('refs/', '')
+            });
+
+            const commit = await github.rest.git.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: ref.data.object.sha
+            });
+
+            await github.rest.git.createCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              message: 'your empty commit message',
+              tree: commit.data.tree.sha,
+              parents: [ref.data.object.sha]
+            });

@@ -220,14 +220,25 @@ jobs:
             const networkConfigPath = path.join('networks', `${process.env.NETWORK_NAME}.json`);
             const networkConfig = JSON.parse(fs.readFileSync(networkConfigPath, 'utf8'));
             networkConfig.PROXY_ADDRESS = proxyAddress;
-            fs.writeFileSync(networkConfigPath, JSON.stringify(networkConfig, null, 2));
 
-            // Git commit the updated network config
-            await exec.exec('git', ['config', '--global', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-            await exec.exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
-            await exec.exec('git', ['add', `networks/${process.env.NETWORK_NAME}.json`]);
-            await exec.exec('git', ['commit', '--allow-empty', '-m', `chore: update proxy address for network ${process.env.NETWORK_NAME}`]);
-            await exec.exec('git', ['push']);
+            // Get current file SHA
+            const fileResponse = await github.rest.repos.getContent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: `networks/${process.env.NETWORK_NAME}.json`
+            });
+
+            // Update file content through API
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: `networks/${process.env.NETWORK_NAME}.json`,
+              message: `chore: update proxy address for network ${process.env.NETWORK_NAME}`,
+              content: Buffer.from(JSON.stringify(networkConfig, null, 2)).toString('base64'),
+              sha: fileResponse.data.sha,
+              branch: 'master'
+            });
+
       - name: Handle Failure
         if: failure()
         uses: actions/github-script@v6
