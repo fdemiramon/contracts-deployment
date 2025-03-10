@@ -212,6 +212,13 @@ jobs:
 
             console.log('ERC1967Proxy deployed at:', proxyTransaction.contractAddress);
             const proxyAddress = proxyTransaction.contractAddress;
+            // Add a comment to the issue with the new proxy address
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ New proxy deployed at: \`${proxyAddress}\``
+            });
 
             // Update network config file with new proxy address
             process.chdir('..');  // Move back to root
@@ -279,4 +286,12 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `✅ Deployment workflow completed successfully!\n\nAll steps have been executed without any errors.\n\n📊 [View workflow logs](${workflowRunUrl})`
+            });
+
+            // Trigger refresh workflow
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'refresh.yml',
+              ref: 'master'
             });
