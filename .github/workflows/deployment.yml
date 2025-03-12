@@ -213,6 +213,44 @@ jobs:
 
             console.log('ERC1967Proxy deployed at:', proxyTransaction.contractAddress);
             const proxyAddress = proxyTransaction.contractAddress;
+            
+            // Verify proxy contract on Etherscan
+            const verifyResponse = await fetch(`${process.env.ETHERSCAN_BASE_API_URL}/api`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({
+                apikey: process.env.ETHERSCAN_API_KEY,
+                module: 'contract',
+                action: 'verifyproxycontract',
+                address: proxyAddress,
+              }).toString()
+            });
+            
+            const verifyResult = await verifyResponse.json();
+            console.log('Proxy verification submission result:', verifyResult);
+            
+            if (verifyResult.status === '1' && verifyResult.result) {
+              // Check verification status
+              const guid = verifyResult.result;
+              let verificationStatus;
+              do {
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds between checks
+                const statusResponse = await fetch(
+                  `${process.env.ETHERSCAN_BASE_API_URL}/api?` + 
+                  new URLSearchParams({
+                    apikey: process.env.ETHERSCAN_API_KEY,
+                    module: 'contract',
+                    action: 'checkproxyverification',
+                    guid: guid
+                  }).toString()
+                );
+                verificationStatus = await statusResponse.json();
+                console.log('Verification status:', verificationStatus);
+              } while (verificationStatus.result === 'Pending in queue');
+            }
+
             // Add a comment to the issue with the new proxy address
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
