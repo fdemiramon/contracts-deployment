@@ -3,6 +3,7 @@ name: Deploy or upgrade the core smart contracts
 permissions:
   issues: write
   contents: write
+  actions: write
 
 on:
   issues:
