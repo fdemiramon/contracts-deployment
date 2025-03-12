@@ -215,7 +215,7 @@ jobs:
             const proxyAddress = proxyTransaction.contractAddress;
             
             // Verify proxy contract on Etherscan
-            const verifyResponse = await fetch(`${process.env.ETHERSCAN_BASE_API_URL}/api`, {
+            const verifyResponse = await fetch(`${process.env.ETHERSCAN_BASE_API_URL}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -238,7 +238,7 @@ jobs:
               do {
                 await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds between checks
                 const statusResponse = await fetch(
-                  `${process.env.ETHERSCAN_BASE_API_URL}/api?` + 
+                  `${process.env.ETHERSCAN_BASE_API_URL}?` +
                   new URLSearchParams({
                     apikey: process.env.ETHERSCAN_API_KEY,
                     module: 'contract',
