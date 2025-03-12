@@ -85,9 +85,6 @@ jobs:
               core.setFailed(`Private key secret not found`);
               return;
             }
-            console.log("PRIVATE_KEY", privateKey);
-            //console log the 10 first characters of the privateKey
-            console.log("PRIVATE_KEY_10_FIRST_CHARACTERS", privateKey.substring(0, 10));
 
             //core.setSecret(privateKey);
             core.exportVariable('PRIVATE_KEY', privateKey);
