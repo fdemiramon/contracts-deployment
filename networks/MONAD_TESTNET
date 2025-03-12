@@ -1,0 +1,6 @@
+{
+  "RPC_URL": "https://testnet-rpc.monad.xyz",
+  "ETHERSCAN_API_KEY": "",
+  "ETHERSCAN_BASE_API_URL": "",
+  "SIGNATURE_CHECKER_NAME": "EIP191SignatureChecker"
+}
