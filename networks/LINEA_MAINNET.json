@@ -1,5 +1,5 @@
 {
-  "RPC_URL": "https://api.lineascan.build/api",
+  "RPC_URL": "https://linea-mainnet.infura.io/v3/6757d7aad0414200862104bec2118245",
   "ETHERSCAN_API_KEY": "MSK9F8BRQU7CA46TQPT82SEQC6AHWAAEEX",
   "ETHERSCAN_BASE_API_URL": "https://api.lineascan.build/api",
   "SIGNATURE_CHECKER_NAME": "EIP191SignatureChecker"
