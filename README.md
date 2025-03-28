@@ -46,11 +46,11 @@ Contains the Github Actions to deploy the Core smart contract of Keyring.network
 
 ## 5. Understand the configuration files and secrets management
 
-The deployment and upgrade processes need configuration items. Some of them are not sensitive or not highly sensitive, hence are stored and versioned in the `/networks` folder. But the private key is highly sensitive and must never be versioned.
+The deployment and upgrade processes need configuration items. Some of them are not highly sensitive, hence are stored and versioned in the `/networks` folder. But the private keys (one per network) are highly sensitive and managed with Github secrets.
 Hence, for each networkName (eg: `ETHEREUM_SEPOLIA`), we can find:
 
 - in the `/networks` folder, a json (eg: `/networks/ETHEREUM_SEPOLIA.json`), containing the RPCUrl, the address of the proxy if already deployed, ...
-- in the Github secrets, a secret storing the private key of the deployer/owner of the smart contracts (eg: `secrets.ETHEREUM_SEPOLIA_PRIVATE_KEY`)
+- in the Github secrets, a secret storing the private key of the deployer/owner of the smart contracts (eg: `ETHEREUM_SEPOLIA_PRIVATE_KEY`)
 
 ## 6. Understand the json data structure
 
