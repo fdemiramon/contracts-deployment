@@ -27,9 +27,11 @@ Contains the Github Actions to deploy the Core smart contract of Keyring.network
 ## 3. Runbooks
 
 **1/ How to deploy an upgrade**
+open an issue
 // Florian todo
 
 **2/ How to deploy to a new network**
+open an issue and choose network without proxyAddress (or with a proxyAddress malformed)
 // Florian todo
 
 ## 4. Decision Records
@@ -47,14 +49,14 @@ Contains the Github Actions to deploy the Core smart contract of Keyring.network
 ## 5. Understand the configuration files and secrets management
 
 The deployment and upgrade processes need configuration items. Some of them are not highly sensitive, hence are stored and versioned in the `/networks` folder. But the private keys (one per network) are highly sensitive and managed with Github secrets.
-Hence, for each networkName (eg: `ETHEREUM_SEPOLIA`), we can find:
+Hence, for each networkName (eg: `AVALANCHE_TESTNET`), we can find:
 
-- in the `/networks` folder, a json (eg: `/networks/ETHEREUM_SEPOLIA.json`), containing the RPCUrl, the address of the proxy if already deployed, ...
-- in the Github secrets, a secret storing the private key of the deployer/owner of the smart contracts (eg: `ETHEREUM_SEPOLIA_PRIVATE_KEY`)
+- in the `/networks` folder, a json (eg: `/networks/AVALANCHE_TESTNET.json`), containing the RPCUrl, the address of the proxy if already deployed, ...
+- in the Github secrets, a secret storing the private key of the deployer/owner of the smart contracts (eg: `AVALANCHE_TESTNET_PRIVATE_KEY`)
 
 ## 6. Understand the json data structure
 
-For a given network called `FOO_SEPOLIA`, a file called `FOO_SEPOLIA.json` must exist in the folder `/networks`.
+For a given network called `FOO_TESTNET`, a file called `FOO_TESTNET.json` must exist in the folder `/networks`.
 In this file, the following properties must be set. Please refer to the deployment script in the smart contracts repository to understand each configuration item:
 
 - `RPC_URL`
