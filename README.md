@@ -1,3 +1,6 @@
+_IT HAPPENS THAT THE "ISSUES" FEATURE FOR THIS REPO IS DISABLED (PROBABLY BY TERRAFORM?). IN THAT CASE, JUST RE-ENABLE IT IN THE SETTINGS_
+
+
 # Keyring.network smart contracts deployment actions
 
 Contains the Github Actions to deploy the Core smart contract of Keyring.network, triggered through issue creations.
